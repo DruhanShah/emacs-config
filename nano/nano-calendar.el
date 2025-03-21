@@ -44,7 +44,6 @@
 (require 's)
 (require 'holidays)
 (require 'org-agenda)
-(require 'nano-theme)
 
 (defgroup nano-calendar nil
   "Settings for nano calendar"

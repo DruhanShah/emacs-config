@@ -102,7 +102,7 @@
   :group 'nano-agenda
   :type 'function)
 
-(defcustom nano-agenda-view-mode 'day
+(defcustom nano-agenda-view-mode 'week
   "Agenda view mode (day or week)"
   :group 'nano-agenda
   :type '(choice (const day) (const week)))

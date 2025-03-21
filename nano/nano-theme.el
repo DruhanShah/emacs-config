@@ -38,8 +38,7 @@
 
 ;;;###autoload
 (deftheme nano "N Λ N O theme.")
-
-(nano-theme 'nano (frame-parameter (selected-frame) 'background-mode))
-
 (provide-theme 'nano)
+
+(provide 'nano-theme)
 ;;; nano-theme.el ends here

@@ -27,7 +27,7 @@
 ;;       line, the splash screen is not shown.
 
 (require 'subr-x)
-(require 'cl-lib)
+(require 'cl-macs)
 
 
 (defgroup nano nil

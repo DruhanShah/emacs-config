@@ -23,18 +23,14 @@
 ;;
 
 ;;; Code:
-(use-package eat
-  :straight t)
-(require 'nano-box)
+(require 'eat)
+(require 'nano-border)
 (require 'nano-popup)
 
 (add-hook 'eat-exit-hook (lambda (process)
                            (kill-buffer eat-buffer-name)))
 (add-hook 'eat-mode-hook (lambda ()
-                           (nano-modeline nano-modeline-format-terminal)
-                           (face-remap-add-relative 'header-line '(:background "#dce0e8"))
-                           (face-remap-add-relative 'region '(:background "#dce0e8"))
-                           (face-remap-add-relative 'default '(:background "#e6e9ef"))))
+                           (nano-modeline nano-modeline-format-terminal)))
 
 ;;;###autoload
 (defun nano-term ()
@@ -49,7 +45,7 @@
                                    (dedicated . t)))))
       (eat-other-window)
       (with-current-buffer eat-buffer-name
-        (nano-box-on)))))
+        (nano-border-on)))))
 
 (provide 'nano-term)
 ;;; nano-term.el ends here

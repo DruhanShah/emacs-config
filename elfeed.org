@@ -1,0 +1,6 @@
+* ArXiV                                                             :elfeed:
+** [[https://rss.arxiv.org/rss/cs.CL][cs.CL]]                                                          :MUSTREAD:
+** [[https://rss.arxiv.org/rss/math][math ]]                                                          :INTEREST:
+* News                                                              :elfeed:
+** [[https://feeds.arstechnica.com/arstechnica/technology-lab][ARS Tech]]                                                       :INTEREST:
+** [[https://feeds.arstechnica.com/arstechnica/science][ARS Sci]]                                                        :INTEREST:

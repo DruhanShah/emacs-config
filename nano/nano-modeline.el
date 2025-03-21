@@ -119,6 +119,7 @@
 ;;
 
 ;;; Code:
+(require 'nano-theme)
 
 (defgroup nano nil
   "N Λ N O"
@@ -247,7 +248,7 @@
     (window-active . "●")
     (window-inactive . "")
     (window-dedicated . "󰐃")
-    (vc-branch  . "")
+    (vc-branch  . "󰘬")
     (vc-hash  . "#")
     (mail-html . (" " . (4 . 0)))
     (mail-tag . (" " . (4 . 0)))
@@ -279,7 +280,7 @@ other characters."
                  (const :tag "Bottom" footer))
   :group 'nano-modeline)
 
-(defcustom nano-modeline-borders '(t . t)
+(defcustom nano-modeline-borders '(nil . nil)
   "Whether to add left / right borders to modlines"
 
   :type '(cons (boolean :tag "Left")
@@ -774,7 +775,7 @@ modeline."
    (concat
     "(" (downcase (cond ((consp mode-name) (car mode-name))
                         ((stringp mode-name) mode-name)
-                        (t "unknow")))
+                        (t "unknown")))
     (when (buffer-narrowed-p)  "/narrow") " mode)")
    'face 'nano-modeline-face-default))
 
@@ -783,10 +784,9 @@ modeline."
 
   (when vc-mode
       (when-let* ((file (buffer-file-name))
-                  (branch (substring-no-properties vc-mode 5))
-                  (state (vc-state file)))
-        (propertize (format "(%s%s, %s)" (nano-modeline-symbol 'vc-branch) branch state)
-                    'face 'nano-modeline-face-default))))
+                  (branch (substring-no-properties vc-mode 5)))
+        (propertize (format "%s %s" (nano-modeline-symbol 'vc-branch) branch)
+                    'face 'nano-modeline-face-secondary))))
 
 (defun nano-modeline-element-buffer-position ()
   "Return a string describing current position in buffer."
@@ -1503,7 +1503,7 @@ DEFAULT is true, this is made the default mode/header line."
           (face-remap-add-relative 'mode-line-active face-relative)
           (face-remap-add-relative 'mode-line-inactive  face-relative))))
 
-    ;; Instal modeline
+    ;; Install modeline
     (if (not (eq position 'footer))
         (progn
           (setq header-line-format `(:eval (nano-modeline-make ',format)))
@@ -1517,31 +1517,6 @@ DEFAULT is true, this is made the default mode/header line."
         (when default
           (setq-default mode-line-format `(:eval (nano-modeline-make ',format)))
           (setq-default header-line-format nil))))))
-
-(add-hook 'elpher-mode-hook
-	  (lambda () nano-modeline-format-elpher))
-(add-hook 'mu4e-view-mode-hook
-	  (lambda () nano-modeline-format-mu4e-message))
-(add-hook 'mu4e-compose-mode-hook
-	  (lambda () nano-modeline-format-mu4e-compose))
-(add-hook 'mu4e-headers-mode-hook
-	  (lambda () nano-modeline-format-mu4e-headers))
-(add-hook 'calendar-mode-hook
-	  (lambda () nano-modeline-format-calendar))
-(add-hook 'terminal-mode-hook
-	  (lambda () nano-modeline-format-terminal))
-(add-hook 'org-capture-mode-hook
-	  (lambda () nano-modeline-format-org-capture))
-(add-hook 'org-lookup-mode-hook
-	  (lambda () nano-modeline-format-org-lookup))
-(add-hook 'elfeed-show-mode-hook
-	  (lambda () nano-modeline-format-elfeed-entry))
-(add-hook 'elfeed-search-mode-hook
-	  (lambda () nano-modeline-format-elfeed-search))
-(add-hook 'nano-agenda-mode-hook
-	  (lambda () nano-modeline-format-nano-agenda))
-(nano-modeline nil nil t)
-
 
 (provide 'nano-modeline)
 ;;; nano-modeline.el ends here

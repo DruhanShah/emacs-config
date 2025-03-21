@@ -151,7 +151,7 @@
   :group 'nano-theme)
 
 (defcustom nano-fonts-use nil
-  "Whether to use font stack"
+  "whether to use font stack"
   :type 'boolean :group 'nano-theme-fonts)
 
 (defcustom nano-window-divider-show nil
@@ -230,39 +230,39 @@
   "Critical face is for information that requires immediate action."
   :type 'color :group 'nano-theme-light)
 
-(defcustom nano-dark-foreground "#ECEFF4"
+(defcustom nano-dark-foreground "#cdd6f4"
   "Default foreground color"
   :type 'color :group 'nano-theme-dark)
 
-(defcustom nano-dark-background "#2E3440" ;; Polar Night 0 / nord  0
+(defcustom nano-dark-background "#1e1e2e" ;; Polar Night 0 / nord  0
   "Default background color"
   :type 'color :group 'nano-theme-dark)
 
-(defcustom nano-dark-highlight "#3B4252" ;; Polar Night 1 / nord  1
+(defcustom nano-dark-highlight "#313244" ;; Polar Night 1 / nord  1
   "Highdark color is used to highdark part of the screen."
   :type 'color :group 'nano-theme-dark)
 
-(defcustom nano-dark-subtle "#434C5E" ;; Polar Night 2 / nord  2
+(defcustom nano-dark-subtle "#585b70" ;; Polar Night 2 / nord  2
   "Subtle color is used to suggest a physical area on the screen."
   :type 'color :group 'nano-theme-dark)
 
-(defcustom nano-dark-faded "#677691" ;;
+(defcustom nano-dark-faded "#7f849c" ;;
   "Faded face is for information that are less important."
   :type 'color :group 'nano-theme-dark)
 
-(defcustom nano-dark-salient "#81A1C1" ;; Frost         / nord  9
+(defcustom nano-dark-salient "#cba6f7" ;; Frost         / nord  9
   "Salient color is used for information that are important."
   :type 'color :group 'nano-theme-dark)
 
-(defcustom nano-dark-strong "#FFFFFF" ;; White
+(defcustom nano-dark-strong "#eff1f5" ;; White
   "Strong color is used for information of a structural nature."
   :type 'color :group 'nano-theme-dark)
 
-(defcustom nano-dark-popout "#D08770" ;; Aurora        / nord 12
+(defcustom nano-dark-popout "#fab387" ;; Aurora        / nord 12
   "Popout colour is used for information that needs attention."
   :type 'color :group 'nano-theme-dark)
 
-(defcustom nano-dark-critical  "#EBCB8B" ;; Aurora        / nord 11
+(defcustom nano-dark-critical  "#f38ba8" ;; Aurora        / nord 11
   "Critical face is for information that requires immediate action."
   :type 'color :group 'nano-theme-dark)
 
@@ -349,7 +349,7 @@ background color that is barely perceptible."
   ;; Use nano fonts
   (setq nano-fonts-use t)
 
-  ;; No startup  screen
+  ;; No startup screen
   (setq inhibit-startup-screen t)
 
   ;; No startup message
@@ -389,9 +389,6 @@ background color that is barely perceptible."
   ;; Moderate font lock
   (setq font-lock-maximum-decoration t)
 
-  ;; No limit on font lock (obsolete)
-  ;; (setq font-lock-maximum-size nil)
-
   ;; No line break space points
   (setq auto-fill-mode nil)
 
@@ -402,15 +399,6 @@ background color that is barely perceptible."
   (setq-default cursor-type '(hbar .  2))
   (setq-default cursor-in-non-selected-windows nil)
   (setq blink-cursor-mode nil)
-
-  ;; No tooltips
-  ;; (tooltip-mode -1)
-
-  ;; No scroll bars
-  ;; (scroll-bar-mode -1)
-
-  ;; No toolbar
-  ;; (tool-bar-mode -1)
 
   ;; Default frame settings
   (setq default-frame-alist
@@ -433,6 +421,9 @@ background color that is barely perceptible."
   (setq window-divider-default-right-width 24)
   (setq window-divider-default-places 'right-only)
   (window-divider-mode 1)
+
+  ;; No backup files
+  (setq make-backup-files nil)
 
   ;; Nicer glyphs for continuation and wrap
   (set-display-table-slot standard-display-table
@@ -530,7 +521,7 @@ background color that is barely perceptible."
 (defun nano-theme (theme mode)
   "Apply the nano THEME according to MODE which can be 'dark or 'light."
 
-  ;; (message (format "Theme applied: %s" mode))
+  (message (format "N Λ N O Theme applied: %s" mode))
 
   (advice-add 'frame-list :filter-return #'nano-frame-list-advice-normal)
 
@@ -574,8 +565,8 @@ background color that is barely perceptible."
                              :height     ,(face-attribute 'nano-italic :height)
                              :slant      ,(face-attribute 'nano-italic :slant)
                              :family     ,(face-attribute 'nano-italic :family)))))
-         `(nano-strong ((,light (:weight normal ))
-                        (,dark  (:weight normal ))))
+         `(nano-strong ((,light (:weight semi-bold ))
+                        (,dark  (:weight semi-bold ))))
          `(variable-pitch  ((t (:weight ,(face-attribute 'nano-sans :weight)
                                 :height ,(face-attribute 'nano-sans :height)
                                 :family ,(face-attribute 'nano-sans :family)))))))
@@ -689,11 +680,11 @@ background color that is barely perceptible."
    ;; --- Header & mode line -------------------------------------------
 
    `(mode-line ((,light (:foreground ,nano-light-background
-                         :background ,nano-light-foreground
+                         :background ,nano-light-subtle
                          :height 0.1
 			 :underline t))
         (,dark  (:foreground ,nano-dark-foreground
-		 :background ,nano-dark-faded
+		 :background ,nano-dark-subtle
 		 :height 0.1
 		 :underline t))))
    `(mode-line-highlight ((t (:inherit nano-popout))))
@@ -701,10 +692,10 @@ background color that is barely perceptible."
    `(mode-line-emphasis  ((t (:weight regular))))
 
    `(mode-line-inactive ((,light (:foreground ,nano-light-background
-                                  :background ,nano-light-faded
+                                  :background ,nano-light-subtle
                                   :height 0.1
 				  :underline t))
-             (,dark  (:foreground ,nano-dark-faded
+			 (,dark  (:foreground ,nano-dark-background
                                   :background ,nano-dark-subtle
                                   :height 0.1
 				  :underline t))))
@@ -1059,7 +1050,7 @@ background color that is barely perceptible."
    '(org-checkbox-statistics-done            ((t (:inherit nano-faded))))
    '(org-checkbox-statistics-todo            ((t (:inherit nano-faded))))
    '(org-clock-overlay                       ((t (:inherit nano-faded))))
-   '(org-code                                ((t (:inherit nano-salient))))
+   '(org-code                                ((t (:inherit (nano-salient nano-mono)))))
    '(org-column                              ((t (:inherit nano-faded))))
    '(org-column-title                        ((t (:inherit nano-faded))))
    '(org-date                                ((t (:inherit nano-faded))))
@@ -1067,19 +1058,18 @@ background color that is barely perceptible."
    '(org-default                             ((t (:inherit nano-faded))))
    '(org-document-info                       ((t (:inherit nano-faded))))
    '(org-document-info-keyword               ((t (:inherit nano-faded))))
-   '(org-document-title                      ((t (:inherit nano-faded))))
-   '(org-done                                ((t (:inherit nano-faded))))
+   '(org-document-title                      ((t (:inherit (nano-strong nano-serif)
+						  :height 1.5))))
+   '(org-done                                ((t (:inherit (nano-faded nano-mono)))))
    '(org-drawer                              ((t (:inherit nano-faded))))
    '(org-ellipsis                            ((t (:inherit nano-faded))))
    '(org-footnote                            ((t (:inherit nano-faded))))
    '(org-formula                             ((t (:inherit nano-faded))))
    '(org-headline-done                       ((t (:inherit nano-faded))))
-   ;; '(org-hide                                ((t (:inherit nano-subtle-i))))
-   ;; '(org-indent                              ((t (:inherit nano-subtle-i))))
-   '(org-latex-and-related                   ((t (:inherit nano-faded))))
-   '(org-level-1                             ((t (:inherit nano-strong))))
-   '(org-level-2                             ((t (:inherit nano-strong))))
-   '(org-level-3                             ((t (:inherit nano-strong))))
+   '(org-latex-and-related                   ((t (:inherit (nano-faded nano-mono)))))
+   '(org-level-1                             ((t (:inherit nano-strong :height 1.3))))
+   '(org-level-2                             ((t (:inherit nano-strong :height 1.2))))
+   '(org-level-3                             ((t (:inherit nano-strong :height 1.1))))
    '(org-level-4                             ((t (:inherit nano-strong))))
    '(org-level-5                             ((t (:inherit nano-strong))))
    '(org-level-6                             ((t (:inherit nano-strong))))
@@ -1091,7 +1081,7 @@ background color that is barely perceptible."
    '(org-meta-line                           ((t (:inherit nano-faded))))
    '(org-mode-line-clock                     ((t (:inherit nano-faded))))
    '(org-mode-line-clock-overrun             ((t (:inherit nano-faded))))
-   '(org-priority                            ((t (:inherit nano-faded))))
+   '(org-priority                            ((t (:inherit (nano-faded nano-mono)))))
    '(org-property-value                      ((t (:inherit nano-faded))))
    '(org-quote                               ((t (:inherit nano-faded))))
    '(org-scheduled                           ((t (:inherit nano-faded))))
@@ -1104,9 +1094,9 @@ background color that is barely perceptible."
    '(org-tag-group                           ((t (:inherit nano-faded))))
    '(org-target                              ((t (:inherit nano-faded))))
    '(org-time-grid                           ((t (:inherit nano-faded))))
-   '(org-todo                                ((t (:inherit nano-salient))))
+   '(org-todo                                ((t (:inherit (nano-salient nano-mono)))))
    '(org-upcoming-deadline                   ((t (:inherit nano-popout))))
-   '(org-verbatim                            ((t (:inherit nano-popout))))
+   '(org-verbatim                            ((t (:inherit (nano-popout nano-mono)))))
    '(org-verse                               ((t (:inherit nano-faded))))
    '(org-warning                             ((t (:inherit nano-popout))))
 
