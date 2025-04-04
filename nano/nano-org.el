@@ -66,9 +66,8 @@ specified by TYPES that defaults to '(heading drawer item block)."
          (keyword (when (stringp keyword)
                (string-trim (substring-no-properties keyword))))
          (is-archived (nano-org-archived-p))
-         (is-todo (string= keyword "TODO"))
-         (is-done (string= keyword "DONE"))
          (is-deadline (string= keyword "DEADLINE:"))
+         (is-scheduled (string= keyword "SCHEDULED:"))
          (tbeg (match-beginning 4))
          (tend (match-end 4))
          (active t)
@@ -89,9 +88,7 @@ specified by TYPES that defaults to '(heading drawer item block)."
 					  :overline (face-background 'nano-default)))))
          (time-face (cond (is-archived  '(:inherit (nano-faded nano-subtle)
 					  :overline (face-background 'nano-default)))
-                          (is-todo      '(:inherit (nano-salient-i bold)
-					  :overline (face-background 'nano-default)))
-                          (is-done      '(:inherit (nano-faded-i)
+                          (is-scheduled  '(:inherit (nano-popout-i)
 					  :overline (face-background 'nano-default)))
                           (is-deadline  '(:inherit (nano-critical-i)
 					  :overline (face-background 'nano-default)))
@@ -99,32 +96,54 @@ specified by TYPES that defaults to '(heading drawer item block)."
 					  :overline (face-background 'nano-default))))))
     (remove-list-of-text-properties beg end '(display))
     (add-text-properties beg end `(keymap ,keymap))
-    (if t
-        (let* ((time (save-match-data
-                       (encode-time
-                        (org-fix-decoded-time
-                         (org-parse-time-string
-                          (buffer-substring beg end))))))
-               (date-str (format-time-string " %^b %d " time))
-               (time-str (cond (is-todo " TODO ")
-                               (is-done " DONE ")
-                               (t (format-time-string " %H:%M " time)))))
-          ;; year-month-day
-          (add-text-properties beg (if (eq tbeg tend) end tbeg)
-                               `(face ,date-face display ,date-str))
-          ;; hour:minute
-          (unless (eq tbeg tend)
-            (add-text-properties tbeg end
-                                 `(face ,time-face display ,time-str))))
-        (put-text-property beg (1+ beg) 'display " ")
-        (put-text-property (1- end) end 'display " ")
-        ;; year-month-day
-        (put-text-property beg (if (eq tbeg tend) end tbeg) 'face date-face)
-        ;; hour:minute
-        (unless (eq tbeg tend)
-          (put-text-property (1- tbeg) tbeg 'display
-                             (string (char-before tbeg) ?\s))
-          (put-text-property tbeg end 'face time-face)))))
+    (let* ((time (save-match-data
+		   (encode-time
+		    (org-fix-decoded-time
+		     (org-parse-time-string
+		      (buffer-substring beg end))))))
+	   (date-str (format-time-string " %^b %d " time))
+	   (time-str (format-time-string " %H:%M " time)))
+      ;; year-month-day
+      (add-text-properties beg (if (eq tbeg tend) end tbeg)
+			   `(face ,date-face display ,date-str))
+      ;; hour:minute
+      (unless (eq tbeg tend)
+	(add-text-properties tbeg end
+			     `(face ,time-face display ,time-str))))
+    (put-text-property beg (1+ beg) 'display " ")
+    (put-text-property (1- end) end 'display " ")
+    ;; year-month-day
+    (put-text-property beg (if (eq tbeg tend) end tbeg) 'face date-face)
+    ;; hour:minute
+    (unless (eq tbeg tend)
+      (put-text-property (1- tbeg) tbeg 'display
+			 (string (char-before tbeg) ?\s))
+      (put-text-property tbeg end 'face time-face))))
+
+(defun nano-org--todo ()
+  "TODO keyword and priority highlighting including custom ones"
+
+  (let* ((beg (match-beginning 1))
+	 (end (match-end 1))
+	 (pbeg (match-beginning 3))
+	 (pend (match-end 3))
+	 (state (substring-no-properties (match-string 2)))
+	 (p (string-to-number (substring-no-properties (match-string 4))))
+	 (state-face (cond ((string= state "TODO") '(:inherit nano-salient-i))
+			   ((string= state "DOING") '())
+			   ((string= state "DONE") '())
+			   ((string= state "LATER") '())
+			   ((string= state "NOPE") '())))
+	 (p-face (cond ((eq p 0) '(:inherit nano-critical-i))
+		       ((and (gt p 0) (lt p 4)) '(:inherit nano-salient-i))
+		       ((and (gt p 3) (lt p 7)) '(:inherit nano-popout-i))
+		       ((gt p 6) '(:inherit nano-popout-i))))
+	 (state (concat " " state " "))
+	 (p (concat " " p " ")))
+    (remove-list-of-text-properties beg end '(display))
+    ;; TODO keyword
+    (add-text-properties beg (if (eq pbeg pend)))
+    ))
 
 (defun nano-org--properties ()
   "Properties drawer prefix depending on folding state"
@@ -151,10 +170,10 @@ specified by TYPES that defaults to '(heading drawer item block)."
 
   (let* ((prefix (substring-no-properties (match-string 0)))
          (n (max 0 (- (length prefix) 3))))
-     (concat (make-string n ? )
-             (cond ((nano-org-archived-p) (propertize " " 'face 'org-archived))
-                   ((nano-org-folded-p)   " ")
-                   (t                     " ")))))
+    (concat (make-string n ? )
+            (cond ((nano-org-archived-p) (propertize " " 'face 'org-archived))
+                  ((nano-org-folded-p)   " ")
+                  (t                     " ")))))
 
 (defun nano-org--user ()
   "Pretty format for user"
@@ -162,30 +181,41 @@ specified by TYPES that defaults to '(heading drawer item block)."
   (let* ((user (substring-no-properties (match-string 1)))
          (user (string-replace "@" " " user)))
     (propertize user 'face (if (nano-org-archived-p)
-                              'nano-faded
+                               'nano-faded
                              'nano-salient)
-                     'pointer 'hand
-                     'mouse-face (when (not (nano-org-archived-p))
-                                   '(:inherit (nano-subtle bold))))))
+                'pointer 'hand
+                'mouse-face (when (not (nano-org-archived-p))
+                              '(:inherit (nano-subtle bold))))))
+
+(defvar nano-org--todo-re
+  (concat "^\\*+[\\\t ]+"
+	  "\\("
+	   "\\("
+	    "TODO\\|DONE\\|DOING\\|LATER\\|NOPE"
+	   "\\)"
+	  "\\) "
+	  "\\("
+	   "\\[\\#\\([0-9]\\)\\]"
+	  "\\)?"))
 
 (defvar nano-org--timestamp-re
-  (concat "^\\*+[\\\t ]+"                             ;; Context: Header stars (mandatory, anonymous)
-          "\\("                                       ;; Group 1: whole timestamp
-          "\\("                                       ;; Group 2: TODO / DEADLINE (optional)
-            "\\(?:TODO\\|DONE\\|DEADLINE:\\)[\\\t ]+"             ;;
-          "\\)?"                                      ;;
-          "\\(?:<\\|\\[\\)"                           ;; Anonymous group for < or [
-          "\\("                                       ;; Group 3 start: date (mandatory)
-            "[0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\}"  ;;  YYYY-MM-DD (mandatory)
-            "\\(?: [[:word:]]+\\.?\\)?"                   ;;  day name (optional)
-            "\\(?: [.+-]+[0-9ymwdh/]+\\)*"            ;;  repeater (optional)
-          "\\)"                                       ;; Group 3 end
-          "\\("                                       ;; Group 4 start (optional): time
-            "\\(?: [0-9:-]+\\)?"                      ;;   HH:MM (optional)
-            "\\(?: [.+-]+[0-9ymwdh/]+\\)*"            ;;   repeater (optional)
-          "\\)"                                       ;; Group 4 end
-          "\\(?:>\\|\\]\\)"                           ;; Anonynous group for > or ]
-          "\\)"))                                     ;; Group 1 end
+  (concat 
+   "\\("                                       ; Group 1: whole timestamp
+   "\\("                                       ; Group 2: TODO / DEADLINE (optional)
+   "\\(?:SCHEDULED:\\|DEADLINE:\\)[\\\t ]+" ;
+   "\\)?"                                      ;
+   "\\(?:<\\|\\[\\)"                           ; Anonymous group for < or [
+   "\\("                                       ; Group 3 start: date (mandatory)
+   "[0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\}"  ;   YYYY-MM-DD (mandatory)
+   "\\(?: [[:word:]]+\\.?\\)?"               ;   day name (optional)
+   "\\(?: [.+-]+[0-9ymwdh/]+\\)*"            ;   repeater (optional)
+   "\\)"                                       ; Group 3 end
+   "\\("                                       ; Group 4 start (optional): time
+   "\\(?: [0-9:-]+\\)?"                      ;   HH:MM (optional)
+   "\\(?: [.+-]+[0-9ymwdh/]+\\)*"            ;   repeater (optional)
+   "\\)"                                       ; Group 4 end
+   "\\(?:>\\|\\]\\)"                           ; Anonynous group for > or ]
+   "\\)"))                                     ; Group 1 end
 
 (defvar nano-org--drawer-properties-re
   "^\\(:\\)PROPERTIES:")                              ;; Group 1 for :[PROPERTIES:]
@@ -205,9 +235,6 @@ specified by TYPES that defaults to '(heading drawer item block)."
 (defvar nano-org--drawer-end-re
   "^\\(:\\)END:")                                     ;; Group 1 for :[END:]
 
-(defvar nano-org--stars-re
-  "^\\(\\*\\{2,\\}\\) ")                              ;; Group 1 for **...
-
 (defvar nano-org--ul-list-re
   "^\\(- \\)")                                        ;; Group 1 for -
 
@@ -218,7 +245,7 @@ specified by TYPES that defaults to '(heading drawer item block)."
   "\\(@[a-zA-Z]+\\)")                                 ;; Group 1 for @XXX
 
 (defun org-nano--cycle-hook (&rest args)
-   (font-lock-update))
+  (font-lock-update))
 
 
 (defun nano-org ()
@@ -227,6 +254,7 @@ specified by TYPES that defaults to '(heading drawer item block)."
   (interactive)
   (font-lock-add-keywords nil
      `((,nano-org--timestamp-re         1 (nano-org--timestamp) nil t)
+       (,nano-org--todo-re)             1 `(face nil display ,(nano-org--timestamp))
        (,nano-org--drawer-content-re    1 `(face nil display "│ "))
        (,nano-org--drawer-end-re        1 `(face nil display "└ "))
        (,nano-org--drawer-clock-re      1 `(face nil display "│  "))
@@ -235,20 +263,12 @@ specified by TYPES that defaults to '(heading drawer item block)."
        (,nano-org--drawer-closed-re     1 `(face nil display " "))
        (,nano-org--user-re              1 `(face nil display ,(nano-org--user)))
        (,nano-org--ul-list-re           1 `(face nil display ,(nano-org--ul-list)))
-       (,nano-org--ol-list-re           1 `(face nil display ,(nano-org--ol-list)))
-       (,nano-org--stars-re             1 `(face nil display ,(nano-org--stars))))
-    'append)
+       (,nano-org--ol-list-re           1 `(face nil display ,(nano-org--ol-list))))
+     'append)
 
   (add-hook 'org-cycle-hook #'org-nano--cycle-hook)
   (advice-add 'org-fold-hide-drawer-toggle :after
               #'org-nano--cycle-hook)
-  (setq org-time-stamp-formats '("%Y-%m-%d" . "%Y-%m-%d %H:%M"))
-  (setq org-indent-mode-turns-on-hiding-stars nil)
-  (face-remap-add-relative 'org-level-1 'bold)
-  (face-remap-add-relative 'org-level-2 'bold)
-  (face-remap-add-relative 'org-level-3 'default)
-  (face-remap-add-relative 'org-tag '(nano-popout bold))
-  (face-remap-add-relative 'org-date 'nano-faded)
   (cursor-sensor-mode -1)
   (font-lock-update))
 

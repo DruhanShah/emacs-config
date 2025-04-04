@@ -174,7 +174,7 @@ This is a bunch of stuff that causes bugs so I need to fix it rq.
 
 * Typography
 
-This is all the stuff I need to improve typography when using Emacs. This includes coding ligatures and icons.
+This is all the stuff I need to improve typography when using Emacs. This includes coding ligatures, icons, and colour code rendering.
 
 #+begin_src emacs-lisp
   (use-package ligature
@@ -210,6 +210,10 @@ This is all the stuff I need to improve typography when using Emacs. This includ
     :after nerd-icons
     :hook (nerd-icons-completion-mode))
 
+  (use-package colorful-mode
+    :ensure t
+    :config
+    (global-colorful-mode))
 #+end_src
 
 
@@ -244,7 +248,7 @@ On second thought, I'm getting rid of AucTeX since I'm mainly using Orgmode anyw
 
 I'm using Corfu at the moment for my completions at point.
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle not-init.el
   (use-package corfu
     :ensure t
     :config
@@ -273,8 +277,9 @@ Things i've tried:
 All hail the OrgMode system! Lots of very helpful modules have been used here, and several more can be added once I start getting more comfortable with them.
 
 #+begin_src emacs-lisp
+  (cl-pushnew 'org elpaca-ignored-dependencies)
   (use-package org
-    :ensure (:type built-in)
+    :ensure nil
     :hook (org-mode . org-indent-mode)
     :hook (org-mode . visual-line-mode)
     :hook (org-mode . mixed-pitch-mode)
@@ -371,6 +376,8 @@ These are some nice-to-haves that make Org files look good in Emacs.
     :ensure t
     :after org
     :hook (org-mode . mixed-pitch-mode))
+
+  (require 'org-pretty-table)
 #+end_src
 
 
@@ -394,6 +401,20 @@ This feels more comfortable and simultaneously not. I need to get more comfortab
     :config
     (exec-path-from-shell-initialize))
 #+end_src
+
+
+* Snippets
+
+I'm starting to get the idea that snippets are going to be very useful. (Who'd have thought?)
+I'm using good old =yasnippet= for this.
+
+#+begin_src emacs-lisp
+  (use-package yasnippet
+    :ensure t
+    :config
+    (yas-global-mode 1)
+    (setq yas-snippet-dirs '(".config/emacs/snippets")))
+    #+end_src
 
 
 * Minibuffer (basically Vertico)
