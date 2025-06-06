@@ -19,7 +19,6 @@
 ;; see <https://www.gnu.org/licenses/>.
 
 (require 'org)
-(require 'org-indent)
 (require 'nano-theme)
 
 
@@ -80,20 +79,20 @@ specified by TYPES that defaults to '(heading drawer item block)."
                                 (interactive)
                                 (let ((org-time-stamp-rounding-minutes '(0 15 30 45)))
                                   (org-timestamp-change -15 'minute)))))
-         (date-face (cond (is-archived  '(:inherit (nano-faded nano-subtle)
-					  :overline (face-background 'nano-default)))
-                          (active       '(:inherit (nano-default bold nano-subtle)
-					  :overline (face-background 'nano-default)))
-                          (t            '(:inherit (nano-faded bold nano-subtle)
-					  :overline (face-background 'nano-default)))))
-         (time-face (cond (is-archived  '(:inherit (nano-faded nano-subtle)
-					  :overline (face-background 'nano-default)))
-                          (is-scheduled  '(:inherit (nano-popout-i)
-					  :overline (face-background 'nano-default)))
-                          (is-deadline  '(:inherit (nano-critical-i)
-					  :overline (face-background 'nano-default)))
-                          (t            '(:inherit (nano-default-i bold)
-					  :overline (face-background 'nano-default))))))
+         (date-face (cond (is-archived  `(:inherit (nano-faded nano-subtle)
+					  :overline ,(face-background 'nano-default)))
+                          (active       `(:inherit (nano-default bold nano-subtle)
+					  :overline ,(face-background 'nano-default)))
+                          (t            `(:inherit (nano-faded bold nano-subtle)
+					  :overline ,(face-background 'nano-default)))))
+         (time-face (cond (is-archived  `(:inherit (nano-faded nano-subtle)
+					  :overline ,(face-background 'nano-default)))
+                          (is-scheduled  `(:inherit (nano-popout-i)
+					  :overline ,(face-background 'nano-default)))
+                          (is-deadline  `(:inherit (nano-critical-i)
+					  :overline ,(face-background 'nano-default)))
+                          (t            `(:inherit (nano-default-i bold)
+					  :overline ,(face-background 'nano-default))))))
     (remove-list-of-text-properties beg end '(display))
     (add-text-properties beg end `(keymap ,keymap))
     (let* ((time (save-match-data
@@ -121,29 +120,41 @@ specified by TYPES that defaults to '(heading drawer item block)."
       (put-text-property tbeg end 'face time-face))))
 
 (defun nano-org--todo ()
-  "TODO keyword and priority highlighting including custom ones"
+  "TODO keyword highlighting"
 
-  (let* ((beg (match-beginning 1))
-	 (end (match-end 1))
-	 (pbeg (match-beginning 3))
-	 (pend (match-end 3))
-	 (state (substring-no-properties (match-string 2)))
-	 (p (string-to-number (substring-no-properties (match-string 4))))
-	 (state-face (cond ((string= state "TODO") '(:inherit nano-salient-i))
-			   ((string= state "DOING") '())
-			   ((string= state "DONE") '())
-			   ((string= state "LATER") '())
-			   ((string= state "NOPE") '())))
-	 (p-face (cond ((eq p 0) '(:inherit nano-critical-i))
-		       ((and (gt p 0) (lt p 4)) '(:inherit nano-salient-i))
-		       ((and (gt p 3) (lt p 7)) '(:inherit nano-popout-i))
-		       ((gt p 6) '(:inherit nano-popout-i))))
-	 (state (concat " " state " "))
-	 (p (concat " " p " ")))
-    (remove-list-of-text-properties beg end '(display))
-    ;; TODO keyword
-    (add-text-properties beg (if (eq pbeg pend)))
-    ))
+  (let* ((state (substring-no-properties (match-string 1)))
+	 (inherit-face
+	  (lambda (state)
+	    (cond ((string= state "TODO") 'nano-salient-i)
+		  ((string= state "DOING") 'nano-popout-i)
+		  ((string= state "DONE") 'nano-faded-i)
+		  ((string= state "HOLD") 'nano-popout-i)
+		  ((string= state "NOPE") 'nano-faded-i)
+		  (t 'nano-default))))
+         (state-face `(:inherit ,(funcall inherit-face state)
+		       :height 110
+		       :weight medium
+		       :overline ,(face-background 'default)))
+	 (state (concat " " state " ")))
+    (propertize state 'face state-face)))
+
+(defun nano-org--priority ()
+  "TODO priority tag highlighting"
+
+  (let* ((tag (substring-no-properties (match-string 1)))
+	 (level (substring-no-properties (match-string 2)))
+	 (inherit-face
+	  (lambda (prio)
+	    (cond ((< prio 3) 'nano-critical)
+		  ((< prio 6) 'nano-popout)
+		  ((< prio 10) 'nano-faded)
+		  (t 'nano-faded))))
+         (level-face `(:inherit ,(funcall inherit-face (string-to-number level))
+		       :height 110
+		       :weight medium
+		       :box (:line-width 1)))
+	 (tag (concat " " level " ")))
+    (propertize tag 'face level-face)))
 
 (defun nano-org--properties ()
   "Properties drawer prefix depending on folding state"
@@ -165,16 +176,6 @@ specified by TYPES that defaults to '(heading drawer item block)."
 
   (if (nano-org-folded-p) " " nil))
 
-(defun nano-org--stars ()
-  "Header prefix depending on folding state"
-
-  (let* ((prefix (substring-no-properties (match-string 0)))
-         (n (max 0 (- (length prefix) 3))))
-    (concat (make-string n ? )
-            (cond ((nano-org-archived-p) (propertize " " 'face 'org-archived))
-                  ((nano-org-folded-p)   " ")
-                  (t                     " ")))))
-
 (defun nano-org--user ()
   "Pretty format for user"
 
@@ -188,31 +189,26 @@ specified by TYPES that defaults to '(heading drawer item block)."
                               '(:inherit (nano-subtle bold))))))
 
 (defvar nano-org--todo-re
-  (concat "^\\*+[\\\t ]+"
-	  "\\("
-	   "\\("
-	    "TODO\\|DONE\\|DOING\\|LATER\\|NOPE"
-	   "\\)"
-	  "\\) "
-	  "\\("
-	   "\\[\\#\\([0-9]\\)\\]"
-	  "\\)?"))
+  "^\\*+[\\\t ]+\\(TODO\\|DONE\\|DOING\\|HOLD\\|NOPE\\)")
+
+(defvar nano-org--priority-re
+  "^\\*+[\\\t ]+\\(?:[A-Z]* \\)\\(\\[#\\([0-9]+\\)\\]\\)")
 
 (defvar nano-org--timestamp-re
   (concat 
    "\\("                                       ; Group 1: whole timestamp
-   "\\("                                       ; Group 2: TODO / DEADLINE (optional)
-   "\\(?:SCHEDULED:\\|DEADLINE:\\)[\\\t ]+" ;
+   "\\("                                       ; Group 2: SCHEDULED / DEADLINE (optional)
+   "\\(?:SCHEDULED:\\|DEADLINE:\\)[\\\t ]+"    ;
    "\\)?"                                      ;
    "\\(?:<\\|\\[\\)"                           ; Anonymous group for < or [
    "\\("                                       ; Group 3 start: date (mandatory)
-   "[0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\}"  ;   YYYY-MM-DD (mandatory)
-   "\\(?: [[:word:]]+\\.?\\)?"               ;   day name (optional)
-   "\\(?: [.+-]+[0-9ymwdh/]+\\)*"            ;   repeater (optional)
+   "[0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\}"    ;   YYYY-MM-DD (mandatory)
+   ;; "\\(?: [[:word:]]+\\)?"                     ;   day name (optional)
+   ;; "\\(?: [.+-]+[0-9ymwdh/]+\\)*"              ;   repeater (optional)
    "\\)"                                       ; Group 3 end
    "\\("                                       ; Group 4 start (optional): time
-   "\\(?: [0-9:-]+\\)?"                      ;   HH:MM (optional)
-   "\\(?: [.+-]+[0-9ymwdh/]+\\)*"            ;   repeater (optional)
+   "\\(?: [0-9:-]+\\)?"                        ;   HH:MM (optional)
+   "\\(?: [.+-]+[0-9ymwdh/]+\\)*"              ;   repeater (optional)
    "\\)"                                       ; Group 4 end
    "\\(?:>\\|\\]\\)"                           ; Anonynous group for > or ]
    "\\)"))                                     ; Group 1 end
@@ -253,8 +249,9 @@ specified by TYPES that defaults to '(heading drawer item block)."
 
   (interactive)
   (font-lock-add-keywords nil
-     `((,nano-org--timestamp-re         1 (nano-org--timestamp) nil t)
-       (,nano-org--todo-re)             1 `(face nil display ,(nano-org--timestamp))
+     `((,nano-org--todo-re             1 `(face nil display ,(nano-org--todo)))
+       (,nano-org--priority-re         1 `(face nil display ,(nano-org--priority)))
+       (,nano-org--drawer-logbook-re    1 `(face nil display "┌ "))
        (,nano-org--drawer-content-re    1 `(face nil display "│ "))
        (,nano-org--drawer-end-re        1 `(face nil display "└ "))
        (,nano-org--drawer-clock-re      1 `(face nil display "│  "))

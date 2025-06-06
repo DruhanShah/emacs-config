@@ -1,125 +1,5 @@
-;;; nano-modeline.el --- N Λ N O modeline -*- lexical-binding: t -*-
-
-;; Copyright (C) 2021-2024 Free Software Foundation, Inc.
-
-;; Maintainer: Nicolas P. Rougier <Nicolas.Rougier@inria.fr>
-;; URL: https://github.com/rougier/nano-modeline
-;; Version: 2.0
-;; Package-Requires: ((emacs "27.1"))
-;; Keywords: convenience, mode-line, header-line
-
-;; This file is not part of GNU Emacs.
-
-;; This file is free software; you can redistribute it and/or modify
-;; it under the terms of the GNU General Public License as published by
-;; the Free Software Foundation; either version 3, or (at your option)
-;; any later version.
-
-;; This file is distributed in the hope that it will be useful,
-;; but WITHOUT ANY WARRANTY; without even the implied warranty of
-;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-;; GNU General Public License for more details.
-
-;; For a full copy of the GNU General Public License
-;; see <https://www.gnu.org/licenses/>.
-
-;;; Commentary:
-;;
-;; Nano modeline is a an alternative to the GNU/Emacs modeline. It can
-;; be displayed at the bottom (mode-line) or at the top (header-line)
-;; depending on the nano-modeline-position custom setting. There are
-;; several modelines that can be installed on a per-mode basis or as
-;; the default.
-;;
-;; Everything is configurable via the nano-modeline customization group.
-;;
-;; Usage example:
-;;
-;; Use default modeline for the current buffer
-;; (nano-modeline)
-;;
-;; Install the modeline for all prog buffers:
-;; (add-hook 'prog-mode-hook
-;;    (lambda () (nano-modeline nano-modeline-format-default)))
-;;
-;; Make the default modeline the default for all buffers:
-;; (nano-modeline nil t)
-;;
-;;; NEWS:
-;;
-;; Version  2.0
-;; - Full rewrite for simplification
-;; - Advanced customization interfaces
-;; - No more svg buttons (only text buttons)
-;; - No mode active/inactive faces (active indicator instead)
-;; - Pixel precise alignment of the mode-line/header-line
-;;
-;; Version  1.1.0
-;; - Minor bugfix with org-capture
-;; - Better mu4e message mode line
-;; - Fixed eat mode line
-;; - Better margin/fringe alignment
-;; - API change: button now take advantage of new svg-lib API
-;; - Fixed flat-button style
-;;
-;; Version 1.0.1
-;; - Minor bugfix
-;;
-;; Version 1.0.0
-;; - Complete rewrite to make it simpler & faster
-;; - API break: No longer a minor mode
-;; - Activatable buttons can be added and grouped
-;; - Modeline can be now be activated through modes hook
-;;
-;; Version 0.7.2
-;; - Fix a bug in info mode (breadcrumbs)
-;; - Fix mu header mode for version 1.8
-;; - Put back padding (for default style)
-;;
-;; Version 0.7.1
-;; - Fix a bug with mu4e-dashboard
-;; - Fix a bug in pdf view mode
-;; - Better org-capture mode
-;;
-;; Version 0.7
-;; - Prefix is now an option (none, status or icon)
-;; - Prefix can be replaced by icons
-;; - Better space computation
-;; - New imenu-list mode
-;; - Indirect buffers are now handled properly
-;; - Bugfix in org-clock-mode
-;;
-;; Version 0.6
-;; - Spaces have face that enforce active/inactive
-;; - Better marker for dedicated windows
-;; - Internal reordering of modes, most frequent first
-;;    (educated guess, might vary greatly with users)
-;;
-;; Version 0.5.1
-;; - Bug fix (make-obsolete-variable)
-;; - Added marker for dedicated window
-;;
-;; Version 0.5
-;; - Dynamic version that is now configurable thanks to the wonderful
-;;   contribution of Hans Donner (@hans-d)
-;;
-;; Version 0.4
-;; - Reverted to RO/RW/** default prefix
-;;
-;; Version 0.3
-;; - Usage of :align-to: properties for better alignment
-;; - Added elpher mode
-;; - Fix user mode
-;;
-;; Version 0.2
-;; - Implements modeline as minor mode
-;;
-;; Version 0.1
-;; - Submission to ELPA
-;;
-
 ;;; Code:
-(require 'nano-theme)
+(require 'nano-theme-support)
 
 (defgroup nano nil
   "N Λ N O"
@@ -145,16 +25,13 @@
           (choice (choice :tag "→ Border"
                      (const :tag "Left" nano-modeline-element-border-left)
                      (const :tag "Right" nano-modeline-element-border-right))
-                  ;; ----------------------------------------------------------
                   (choice :tag "→ Space"
                      (const :tag "Full" nano-modeline-element-space)
                      (const :tag "Half" nano-modeline-element-half-space)
                      (list  :tag "Custom" (const :tag "" nano-modeline-element-space)
                                           (integer :tag "Width (pixels)")))
-                  ;; ----------------------------------------------------------
                   (choice :tag "→ Calendar"
                      (const :tag "Selected date"  nano-modeline-element-calendar-date))
-                  ;; ----------------------------------------------------------
                   (choice :tag "→ Mu4e"
                     (choice :tag "→ Compose"
                         (const :tag "Context (button)" nano-modeline-button-mu4e-compose-context)
@@ -175,31 +52,25 @@
                         (const :tag "Threads (button)" nano-modeline-button-mu4e-threads)
                         (const :tag "related (button)" nano-modeline-button-mu4e-related)
                         (const :tag "Update (button)"  nano-modeline-button-mu4e-update)))
-                  ;; ----------------------------------------------------------
                   (choice :tag "→ Buffer"
-                     (const :tag "Status" nano-modeline-element-buffer-status)
                      (const :tag "Name" nano-modeline-element-buffer-name)
                      (const :tag "Mode" nano-modeline-element-buffer-mode)
                      (const :tag "VC mode" nano-modeline-element-buffer-vc-mode)
                      (const :tag "Position" nano-modeline-element-buffer-position))
-                  ;; ----------------------------------------------------------
                   (choice :tag "→ Terminal"
                      (const :tag "Status" nano-modeline-element-terminal-status)
                      (const :tag "Name" nano-modeline-element-terminal-name)
                      (const :tag "Mode" nano-modeline-element-terminal-mode)
                      (const :tag "Working directory" nano-modeline-element-terminal-directory))
-                  ;; ----------------------------------------------------------
                   (choice :tag "→ Org capture"
                      (const :tag "Description"  nano-modeline-element-org-capture-description)
                      (const :tag "Save (button)" nano-modeline-button-org-capture-save)
                      (const :tag "Kill (button)" nano-modeline-button-org-capture-kill)
                      (const :tag "Refile (button)" nano-modeline-button-org-capture-refile))
-                  ;; ----------------------------------------------------------
                   (choice :tag "→ Elpher"
                      (const :tag "Protocol" nano-modeline-element-elpher-protocol)
                      (const :tag "Page title" nano-modeline-element-elpher-title)
                      (const :tag "Go back (button)" nano-modeline-button-elpher-back))
-                  ;; ----------------------------------------------------------
                   (choice :tag "→ NANO Agenda"
                      (const :tag "Date" nano-modeline-element-nano-agenda-date)
                      (const :tag "Go to previous month (button)" nano-modeline-button-nano-agenda-prev-month)
@@ -207,7 +78,6 @@
                      (const :tag "Go to today (button)" nano-modeline-button-nano-agenda-today)
                      (const :tag "Go to next day (button)" nano-modeline-button-nano-agenda-next-day)
                      (const :tag "Go to next month (button)" nano-modeline-button-nano-agenda-next-month))
-                     ;; ----------------------------------------------------------
                   (choice :tag "→ Elfeed"
                      (const :tag "Update (button)" nano-modeline-button-elfeed-update)
                      (const :tag "Search filter" nano-modeline-element-elfeed-search-filter)
@@ -215,7 +85,6 @@
                      (const :tag "Entry feed" nano-modeline-element-elfeed-entry-feed)
                      (const :tag "Entry count" nano-modeline-element-elfeed-entry-count)
                      (const :tag "Entry title" nano-modeline-element-elfeed-entry-title))
-                     ;; ----------------------------------------------------------
                   (choice :tag "→ Window"
                      (const :tag "Status" nano-modeline-element-window-status)
                      (const :tag "Close" nano-modeline-button-window-close))
@@ -224,7 +93,6 @@
                                        (function :tag "Action")
                                        (symbol :tag "state")
                                        (string :tag "Help message"))
-                  ;; ----------------------------------------------------------
                   (choice :tag "→ Custom"
                      (string :tag "String")
                      (function :tag "Function")))))
@@ -238,9 +106,9 @@
           (nano-modeline-part-type :tag "Right part")))
 
 (defcustom nano-modeline-symbol-list
-  '((buffer-read-only  . "RO")
-    (buffer-read-write . "RW")
-    (buffer-modified   . "**")
+  '((buffer-read-only  . "󰌾")
+    (buffer-read-write . "")
+    (buffer-modified   . "󰆓")
     (buffer-terminal   . ">_")
     (buffer-clone      . "CC")
     (buffer-narrow     . "NW")
@@ -260,10 +128,7 @@
     (mail-fold . (" " . (4 . 0)))
     (mail-unfold . (" " . (4 . 0))))
   "Various symbols used in the modeline. It is possible to add padding to
-left and right for symbols that do not align perfectly (NERD
-fonts). Default symbols make use of NERD font and may appear as tofu if
-the fontis not installed on your system. Either install NERD font or use
-other characters."
+left and right for symbols that do not align perfectly."
   :type '(alist :key-type symbol
                 :value-type (choice (string :tag "Label")
                                     (cons  :tag "Label with padding"
@@ -275,73 +140,23 @@ other characters."
 
 (defcustom nano-modeline-position 'header
   "Default position for the nano modeline"
-
   :type '(choice (const :tag "Top"    header)
                  (const :tag "Bottom" footer))
   :group 'nano-modeline)
 
 (defcustom nano-modeline-borders '(nil . nil)
   "Whether to add left / right borders to modlines"
-
   :type '(cons (boolean :tag "Left")
                  (boolean :tag "Right"))
   :group 'nano-modeline)
 
-
 (defcustom nano-modeline-border-color (face-background 'default)
   "Border color"
-
   :type '(color)
   :group 'nano-modeline)
 
-
-(defcustom nano-modeline-alignment '(fringe . fringe)
-  "Left and right alignment of the mode-line (or header-line).
-
-fringes-outside-margins t
-   ┌───┬────────┬───────────────────────────────────────┬────────┬───┬───┐
-   │                         'window alignment                           │
-   └───┴────────┴───────────────────────────────────────┴────────┴───┴───┘
-   ┌───┬────────┬───────────────────────────────────────┬────────┬───┐
-   │                         'fringe alignment                       │
-   └───┴────────┴───────────────────────────────────────┴────────┴───┘
-       ┌────────┬───────────────────────────────────────┬────────┐
-       │                     'margin alignment                   │
-       └────────┴───────────────────────────────────────┴────────┘
-                ┌───────────────────────────────────────┐
-                │             'text alignment           │
-                └───────────────────────────────────────┘
-   ┌───┬────────┬───────────────────────────────────────┬────────┬───┬───┐
-   │   │        │                                       │        │   │   │
-   │ • │    •   │               Text area               │   •    │ • │ • │
-   │ │ │    │   │                                       │   │    │ │ │ │ │
-   └─┼─┴────┼───┴───────────────────────────────────────┴───┼────┴─┼─┴─┼─┘
-     │ Left margin                                    Right margin │   │
-   Left fringe                                            Right fringe │
-                                                                Scroll bar
-
-fringes-outside-margins nil
-   ┌───┬────────┬───────────────────────────────────────┬────────┬───┬───┐
-   │                         'window alignment                           │
-   └───┴────────┴───────────────────────────────────────┴────────┴───┴───┘
-   ┌────────┬───┬───────────────────────────────────────┬───┬────────┐
-   │                         'margin alignment                       │
-   └────────┴───┴───────────────────────────────────────┴───┴────────┘
-            ┌───┬───────────────────────────────────────┬───┐
-            │                'fringe alignment              │
-            └───┴───────────────────────────────────────┴───┘
-                ┌───────────────────────────────────────┐
-                │             'text alignment           │
-                └───────────────────────────────────────┘
-   ┌────────┬───┬───────────────────────────────────────┬───┬────────┬───┐
-   │        │   │                                       │   │        │   │
-   │   •    │ • │               Text area               │ • │    •   │ • │
-   │   │    │ │ │                                       │ │ │    │   │ │ │
-   └───┼────┴─┼─┴───────────────────────────────────────┴─┼─┴────┼───┴─┼─┘
-       │ Left fringe                                Right fringe │     │
-    Left margin                                           Right margin │
-                                                                Scroll bar
-"
+(defcustom nano-modeline-alignment '(margin . margin)
+  "Left and right alignment of the mode-line (or header-line)."
   :type '(cons (choice :tag "Left"
                        (const window)
                        (const margin)
@@ -365,7 +180,7 @@ the buffer status element."
 (defface nano-modeline-face-buffer-read-only
   `((t (:foreground ,(face-background 'default)
         :background ,(face-foreground 'default)
-        :weight ,(face-attribute 'bold :weight))))
+        :weight ,(face-attribute 'default :weight))))
   "Face for read only buffer"
   :group 'nano-modeline-faces)
 
@@ -448,14 +263,12 @@ the buffer status element."
   :group 'nano-modeline-faces)
 
 
-
 (defcustom nano-modeline-format-default
-  (cons '(nano-modeline-element-buffer-status
+  (cons '(nano-modeline-element-buffer-mode
           nano-modeline-element-space
           nano-modeline-element-buffer-name
           nano-modeline-element-space
-          nano-modeline-element-buffer-mode
-          nano-modeline-element-space
+	  nano-modeline-element-space
           nano-modeline-element-buffer-vc-mode)
         '(nano-modeline-element-buffer-position
           nano-modeline-element-window-status
@@ -478,7 +291,7 @@ the buffer status element."
   :group 'nano-modeline-modes)
 
 (defcustom nano-modeline-format-calendar
-  (cons '(nano-modeline-element-buffer-status
+  (cons '(nano-modeline-element-buffer-mode
           nano-modeline-element-space
           nano-modeline-element-calendar-date)
         '(nano-modeline-element-window-status
@@ -488,7 +301,7 @@ the buffer status element."
   :group 'nano-modeline-modes)
 
 (defcustom nano-modeline-format-org-capture
-  (cons '(nano-modeline-element-buffer-status
+  (cons '(nano-modeline-element-buffer-mode
           nano-modeline-element-space
           nano-modeline-element-buffer-name
           nano-modeline-element-space
@@ -504,7 +317,7 @@ the buffer status element."
   :group 'nano-modeline-modes)
 
 (defcustom nano-modeline-format-org-lookup
-  (cons '(nano-modeline-element-buffer-status
+  (cons '(nano-modeline-element-buffer-mode
           nano-modeline-element-space
           nano-modeline-element-buffer-name
           nano-modeline-element-space
@@ -527,7 +340,7 @@ the buffer status element."
     :group 'nano-modeline-modes)
 
 (defcustom nano-modeline-format-nano-agenda
-  (cons '(nano-modeline-element-buffer-status
+  (cons '(nano-modeline-element-buffer-mode
           nano-modeline-element-space
           nano-modeline-element-nano-agenda-date)
         '(nano-modeline-button-nano-agenda-prev-month
@@ -546,7 +359,7 @@ the buffer status element."
     :group 'nano-modeline-modes)
 
 (defcustom nano-modeline-format-elfeed-search
-  (cons '(nano-modeline-element-buffer-status
+  (cons '(nano-modeline-element-buffer-mode
           nano-modeline-element-space
           nano-modeline-element-elfeed-search-filter)
         '(nano-modeline-element-elfeed-search-count
@@ -559,7 +372,7 @@ the buffer status element."
   :group 'nano-modeline-modes)
 
 (defcustom nano-modeline-format-elfeed-entry
-  (cons '(nano-modeline-element-buffer-status
+  (cons '(nano-modeline-element-buffer-mode
           nano-modeline-element-space
           nano-modeline-element-elfeed-entry-feed)
         '(nano-modeline-element-elfeed-entry-count
@@ -570,7 +383,7 @@ the buffer status element."
   :group 'nano-modeline-modes)
 
 (defcustom nano-modeline-format-mu4e-headers
-  (cons '(nano-modeline-element-buffer-status
+  (cons '(nano-modeline-element-buffer-mode
           nano-modeline-element-space
           nano-modeline-element-mu4e-last-query)
         '(nano-modeline-button-mu4e-context
@@ -588,7 +401,7 @@ the buffer status element."
   :group 'nano-modeline-modes)
 
 (defcustom nano-modeline-format-mu4e-message
-  (cons '(;; nano-modeline-element-buffer-status
+  (cons '(;; nano-modeline-element-buffer-mode
           nano-modeline-element-mu4e-message-status
           nano-modeline-element-space
           nano-modeline-element-mu4e-message-from
@@ -602,7 +415,7 @@ the buffer status element."
 
 
 (defcustom nano-modeline-format-mu4e-compose
-  (cons '(nano-modeline-element-buffer-status
+  (cons '(nano-modeline-element-buffer-mode
           nano-modeline-element-space
           nano-modeline-element-mu4e-compose-subject)
         '(nano-modeline-button-mu4e-compose-context
@@ -673,7 +486,7 @@ FACE can be given to be used for the prefix and the suffix."
          (left (if (not (consp left))
                    (cons left '(0 . 0))
                  left))
-         (right (or right (cdr nano-modeline-alignment)))
+         (right (or right (cdr nano-modeline-alignment)))
          (right (if (not (consp right))
                     (cons right '(0 . 0))
                   right))
@@ -745,7 +558,7 @@ modeline."
   "Retrieve SYMBOL from the nano-modeline-symbols list"
   (or (alist-get name nano-modeline-symbol-list) "??"))
 
-(defun nano-modeline-element-buffer-status (&optional symbol face raise)
+(defun nano-modeline-element-buffer-mode (&optional symbol face raise)
   "Return a prefix indicating if buffer is read-only, read-write or modified"
 
   (let* ((raise (or raise nano-modeline-padding))
@@ -755,8 +568,7 @@ modeline."
          (symbol (or symbol (cond ((buffer-narrowed-p)  (nano-modeline-symbol 'buffer-narrow))
                                   ((buffer-base-buffer) (nano-modeline-symbol 'buffer-clone))
                                   (buffer-read-only     (nano-modeline-symbol 'buffer-read-only))
-                                  ((buffer-modified-p)  (nano-modeline-symbol 'buffer-modified))
-                                  (t                    (nano-modeline-symbol 'buffer-read-write))))))
+                                  (t                    (nerd-icons-icon-for-mode major-mode))))))
     (propertize (concat
                  (propertize " " 'display `(raise ,(car raise)))
                  symbol
@@ -766,18 +578,9 @@ modeline."
 (defun nano-modeline-element-buffer-name ()
   "Return a string with the buffer name"
 
-  (propertize (format-mode-line "%b") 'face 'nano-modeline-face-primary))
-
-(defun nano-modeline-element-buffer-mode ()
-  "Return a string describing current major mode."
-
   (propertize
-   (concat
-    "(" (downcase (cond ((consp mode-name) (car mode-name))
-                        ((stringp mode-name) mode-name)
-                        (t "unknown")))
-    (when (buffer-narrowed-p)  "/narrow") " mode)")
-   'face 'nano-modeline-face-default))
+   (format-mode-line "%b")
+   'face 'nano-modeline-face-primary))
 
 (defun nano-modeline-element-buffer-vc-mode ()
   "VC information as (branch, file status)"
@@ -790,7 +593,7 @@ modeline."
 
 (defun nano-modeline-element-buffer-position ()
   "Return a string describing current position in buffer."
-  (propertize (format-mode-line " %C:%l") 'face 'nano-modeline-face-secondary))
+  (propertize (format-mode-line " %l:%C") 'face 'nano-modeline-face-secondary))
 
 (defun nano-modeline-element-window-spacing ()
   "Return conditional spacing"
@@ -938,7 +741,7 @@ pressed. A HELP text can be provided as a tootlip."
 
 (defun nano-modeline-element-terminal-status ()
   "Terminal status"
-  (nano-modeline-element-buffer-status (nano-modeline-symbol 'buffer-terminal)
+  (nano-modeline-element-buffer-mode (nano-modeline-symbol 'buffer-terminal)
                                        'nano-modeline-face-buffer-read-only))
 
 (defun nano-modeline-element-terminal-name ()
@@ -1033,7 +836,7 @@ pressed. A HELP text can be provided as a tootlip."
   (let* ((protocol (elpher-address-protocol (elpher-page-address elpher-current-page)))
          (symbol (cond ((equal protocol "gemini") "GEM")
                        ((equal protocol "gopher") "/"))))
-    (nano-modeline-element-buffer-status symbol)))
+    (nano-modeline-element-buffer-mode symbol)))
 
 (defun nano-modeline-element-elpher-title ()
   "Elpher page title"
@@ -1190,7 +993,7 @@ pressed. A HELP text can be provided as a tootlip."
          (mark (when docid
                  (with-current-buffer "*mu4e-headers*"
                    (gethash docid mu4e--mark-map)))))
-    (nano-modeline-element-buffer-status nil
+    (nano-modeline-element-buffer-mode nil
                  (when mark 'nano-modeline-face-buffer-marked))))
 
 (defun nano-modeline-element-mu4e-message-tags ()
@@ -1476,14 +1279,14 @@ DEFAULT is true, this is made the default mode/header line."
   (let* ((position (or position nano-modeline-position))
          (color nano-modeline-border-color)
          (format (or format nano-modeline-format-default))
-         (face  `(:box (:color ,color :line-width (1 . 1))
-                  :overline nil
-                  :underline nil
-                  :inherit nano-subtle))
-         (face-relative  `(:box (:color ,color :line-width (0 . 1))
-                           :overline nil
-                           :underline nil
-                          :inherit nano-subtle)))
+         (face `(:box (:color ,color :line-width (1 . 2))
+                 :overline nil
+                 :underline nil
+                 :inherit nano-subtle))
+         (face-relative `(:box (:color ,color :line-width (0 . 1))
+                          :overline nil
+                          :underline nil
+			  :inherit nano-subtle)))
 
     (face-remap-reset-base 'header-line)
     (face-remap-reset-base 'mode-line)

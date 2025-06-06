@@ -9,7 +9,7 @@ This configuration is heavily based off of [[https://github.com/rougier][Nicolas
 
 This is a literate configuration, which means all the code blocks in this Org file will be exported using Org-Babel's tangle feature into their corresponding config files on save. As a result, all the configuration necessary will be in this file as far as possible. Sometime in the future, a Table of Contents will be implemented to make navigating this document easier.
 
-* Early-init and other preambles
+* Preambles
 
 The Early-Init file is executed before =init.el=, and hence is where we disable =package.el= in favour of Elpaca.
 
@@ -37,7 +37,7 @@ Now, we throw in a preamble comment in the Init file just in case someone reads 
 This codeblock is directly from the Elpaca repository's README. I have only added a final expression integrating Elpaca with =use-package=.
 
 #+begin_src emacs-lisp
-  (defvar elpaca-installer-version 0.10)
+  (defvar elpaca-installer-version 0.11)
   (defvar elpaca-directory (expand-file-name "elpaca/" user-emacs-directory))
   (defvar elpaca-builds-directory (expand-file-name "builds/" elpaca-directory))
   (defvar elpaca-repos-directory (expand-file-name "repos/" elpaca-directory))
@@ -90,32 +90,36 @@ This codeblock is directly from the Elpaca repository's README. I have only adde
 
 This is a bunch of other niceties that I would like to have, since that would make configuration and usage a good bit easier.
 
-- Specify that the frame needs to be in light mode (Makes it somewhat easier for =nano-theme=, probably?)
-- Add all files in the =nano= directory into the loading path
+- Garbage collector reduction so startup is faster
+- Add all files in the =nano= directory (and other convenience directories) into the loading path
 
 #+begin_src emacs-lisp
-  (set-frame-parameter (selected-frame) 'background-mode 'light)
+  (setq gc-cons-threshold 63000000
+        gc-cons-percentage 0.6)
   (add-to-list 'load-path "~/.config/emacs/nano")
+  (add-to-list 'load-path "~/.config/emacs/org")
 #+end_src
 
 
 * Vim Emulation
 
-I use Evil-mode along with God-mode as an Evil state. I've tried Meow and didn't like it as much. I've tried God-mode as is and loved it, except for the pure Vim bindings.
+I use Evil-mode along with God-mode as an Evil state. I've tried Meow and didn't like it as much. I've tried God-mode as is and loved it, except that it lacked the pure Vim bindings. One issue that I'm still having is that =C-u= to scroll still doesn't work and I don't know why.
+
+Note that there is a =elpaca-wait= call at the end because some customizations I use require Evil to be loaded.
 
 #+begin_src emacs-lisp
   (use-package evil
     :ensure t
     :init
-    (setq evil-want-keybinding nil)
+    (setq evil-want-keybinding t)
     (setq evil-undo-system 'undo-redo)
     :config
-    (setq evil-default-state 'normal)
-    (setq evil-want-C-i-jump t)
-    (setq evil-want-C-w-delete t)
-    (setq evil-want-Y-yank-to-eol t)
-    (setq evil-want-C-u-scroll t)
-    (setq evil-want-C-d-scroll t)
+    (setq evil-default-state 'normal
+          evil-want-C-i-jump t
+          evil-want-C-w-delete t
+          evil-want-Y-yank-to-eol t
+          evil-want-C-u-scroll t
+          evil-want-C-d-scroll t)
     (evil-mode 1))
 
   (use-package evil-collection
@@ -136,6 +140,14 @@ I use Evil-mode along with God-mode as an Evil state. I've tried Meow and didn't
     :after evil
     :config
     (global-evil-surround-mode 1))
+
+  (use-package evil-commentary
+    :ensure t
+    :after evil
+    :config
+    (evil-commentary-mode))
+
+  (elpaca-wait)
 #+end_src
 
 
@@ -153,7 +165,7 @@ This sets up three major plugins: Magit (all hail), Copilot, and Copilot-chat. T
 
 This is a bunch of stuff that causes bugs so I need to fix it rq.
 
-#+begin_src emacs-lisp :tangle not-init.el
+#+begin_src emacs-lisp
   (use-package copilot
     :vc (:url "https://github.com/copilot-emacs/copilot.el"
          :rev :newest
@@ -219,21 +231,53 @@ This is all the stuff I need to improve typography when using Emacs. This includ
 
 * Dired
 
-This has some nice features that I would like when using the builtin Dired. Likely to expand further as I get more comfortable.
+This has some nice features that I would like when using the builtin Dired. The keybinds are to make it more like other Vim-like file managers, particularly Ranger (which is what I used earlier).
 
 #+begin_src emacs-lisp
   (require 'dired)
   (setq dired-listing-switches
         "-l --almost-all --human-readable --group-directories-first")
+  (put 'dired-find-alternate-file 'disabled nil)
   (add-hook 'dired-mode-hook 'dired-hide-details-mode)
+
+  (defun new-dired-up-directory ()
+    "Take dired up one directory and kill the previous buffer"
+    (interactive)
+    (let ((old (current-buffer)))
+      (dired-up-directory)
+      (kill-buffer old)))
+
+  (evil-define-key 'normal dired-mode-map
+    "h" 'new-dired-up-directory
+    "l" 'dired-find-alternate-file
+    "n" 'evil-search-next
+    "N" 'evil-search-previous
+    "o" 'dired-sort-toggle-or-edit
+    "v" 'dired-toggle-marks
+    "m" 'dired-mark
+    "u" 'dired-unmark
+    "c" 'dired-create-directory
+    "t" 'dired-create-empty-file)
+  #+end_src
+
+
+* IBuffer
+
+As much as I need some good buffer management tools, I don't like how IBuffer behaves particularly with evil. This is an attempt to make it that much better.
+
+#+begin_src emacs-lisp
+  (eval-after-load 'ibuffer
+    '(progn
+       (evil-set-initial-state 'ibuffer-mode 'normal)
+       (evil-define-key 'normal ibuffer-mode-map
+         (kbd "v") 'ibuffer-toggle-marks
+         (kbd "l") 'ibuffer-visit-buffer)))
 #+end_src
 
 
-* PDF Tools and LaTeX
+* PDF Tools and ePub reading
 
-This section is about LaTeX and its rendering. This is independent of Org-LaTeX exports.
-
-On second thought, I'm getting rid of AucTeX since I'm mainly using Orgmode anyways for all things LaTeX. If there's anything else that I need pure LaTeX for, I can use nvim since I've get VimTeX anyways.
+This section was originally about LaTeX and its rendering. Now, it's purely for packages that allow reading PDFs and ePubs in Emacs.
 
 #+begin_src emacs-lisp
   (use-package pdf-tools
@@ -241,10 +285,13 @@ On second thought, I'm getting rid of AucTeX since I'm mainly using Orgmode anyw
     :init
     (pdf-tools-install)
     :hook (pdf-view-mode . (lambda () (pdf-view-themed-minor-mode 1))))
+
+  (use-package nov
+    :ensure t)
 #+end_src
 
 
-* Completions
+* Completions and Spellchecking
 
 I'm using Corfu at the moment for my completions at point.
 
@@ -254,6 +301,16 @@ I'm using Corfu at the moment for my completions at point.
     :config
     (setq corfu-auto t)
     (global-corfu-mode))
+#+end_src
+
+For spellchecking, I was using flyspell, but I'm swtching to jinx.
+
+#+begin_src emacs-lisp
+  (use-package jinx
+    :ensure t
+    :bind (("C-!" . jinx-correct)
+           ("C-@" . jinx-languages)
+           ("C-x C-!" . global-jinx-mode)))
 #+end_src
 
 
@@ -278,33 +335,38 @@ All hail the OrgMode system! Lots of very helpful modules have been used here, a
 
 #+begin_src emacs-lisp
   (cl-pushnew 'org elpaca-ignored-dependencies)
+  (require 'org-margin)
+
   (use-package org
     :ensure nil
-    :hook (org-mode . org-indent-mode)
+    :hook (org-mode . org-margin-mode)
     :hook (org-mode . visual-line-mode)
     :hook (org-mode . mixed-pitch-mode)
     :hook (org-mode . org-display-inline-images)
     :config
     (setq org-ellipsis "..."
+  	org-fontify-quote-and-verse-blocks t
           org-hide-emphasis-markers t
+          org-hide-leading-stars t
+  	org-cycle-separator-lines 2
           org-pretty-entities t
-          org-use-sub-superscripts '{}
-          org-format-latex-options (plist-put org-format-latex-options :scale 1.1)
+          org-use-sub-superscripts t
+          org-format-latex-options (plist-put org-format-latex-options :scale 1.25)
           org-latex-src-block-backend 'listings
           org-todo-keywords
           '((sequence "TODO" "DOING" "|" "DONE")
-  	  (sequence "LATER" "|" "NOPE"))
-  	org-priority-highest 0
-  	org-priority-lowest 9
-  	org-priority-default 5
+     	  (sequence "HOLD" "|" "NOPE"))
+  	  org-priority-highest 0
+          org-priority-lowest 9
+     	  org-priority-default 5
           org-agenda-files
           '("~/Notes/Productivity/gcal.org"
             "~/Notes/Productivity/tasks.org"
             "~/Notes/Productivity/appointments.org")
-  	org-hidden-keywords '(title author date)
+     	  org-hidden-keywords '(title author date)
           org-capture-templates
           '(("t" "Todo" entry
-  	   (file+headline "~/Notes/Productivity/refile.org" "Tasks to refile")
+     	   (file+headline "~/Notes/Productivity/refile.org" "Tasks to refile")
              "* TODO %?\n  %i\n  %a")))
     (org-babel-do-load-languages
      'org-babel-load-languages
@@ -357,16 +419,9 @@ Never mind, I'm discarding this module since it causes security issues, and has 
 
 ** UI Stuff
 
-These are some nice-to-haves that make Org files look good in Emacs.
+These are some nice-to-haves that make Org files look good in Emacs. I'm expecting to have to overwrite some of the =org-modern= shenanigans to fit with my current config.
 
 #+begin_src emacs-lisp
-  (use-package org-bullets
-    :ensure t
-    :after org
-    :hook (org-mode . org-bullets-mode)
-    :config
-    (setq org-bullets-bullet-list '("◉" "○" "" "✸" "")))
-
   (use-package org-autolist
     :ensure t
     :after org
@@ -421,7 +476,7 @@ I'm using good old =yasnippet= for this.
 
 This customizes the way the Minibuffer works in Emacs.
 
-Best Case Scenario: I'd like to make the =:= binding in Evil-mode behave like =M-x= in the sense that it automatically uses the minibuffer for completion (makes it a lot clearer).
+Best Case Scenario: I'd like to make the =:= binding in Evil-mode behave like =M-x= in the sense that it automatically uses the minibuffer for completion (makes it a lot cleaner).
 
 #+begin_src emacs-lisp
   (use-package vertico
@@ -429,7 +484,7 @@ Best Case Scenario: I'd like to make the =:= binding in Evil-mode behave like =M
     :commands (vertico-mode)
     :init
     (vertico-mode 1)
-    (vertico-buffer-mode 1)
+    (vertico-buffer-mode 1) ; This is so that nano-vertico works alright
     (defvar vertico-preselect)
     :config (setq vertico-preselect 'first))
 
@@ -451,6 +506,17 @@ Best Case Scenario: I'd like to make the =:= binding in Evil-mode behave like =M
 #+end_src
 
 
+* RSS Feeds
+
+I'll be using Elfeed as my RSS reader for news and tech updates.
+
+#+begin_src emacs-lisp
+  (use-package stripes :ensure t)
+  (use-package elfeed :ensure t)
+  (use-package elfeed-org :ensure t :after elfeed)
+#+end_src
+
+
 * Other esoteric stuff
 
 Stuff that is just here to get one task or a few tasks done, not worth going too deep into.
@@ -459,7 +525,7 @@ Stuff that is just here to get one task or a few tasks done, not worth going too
 
 I did try learning Dyalog APL for the APL Forge contest, and found it quite cool. Nice to have a minor mode (and sometime later, and input-mode) for it.
 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle not-init.el
   (use-package dyalog-mode
     :ensure t
     :config
@@ -493,26 +559,28 @@ For now, I'll be keeping all the Elisp in separate files in the =nano/= director
               (progn
                 (require 'nano-theme)
                 (nano-mode)
-                (nano-light)
+  	      (nano-light)
 
-  	      (require 'nano-modeline)
-  	      (nano-modeline nil nil t)
+                (require 'nano-modeline)
+                (nano-modeline nil nil t)
+  	      (nano-mode)
 
-  	      (require 'nano-splash)
-  	      (require 'nano-calendar)
-  	      (require 'nano-agenda)
+                (require 'nano-splash)
+                (require 'nano-calendar)
+                (require 'nano-agenda)
 
-  	      (require 'nano-vertico)
-  	      (nano-vertico-mode)
-  	      (require 'nano-read)
+                (require 'nano-vertico)
+                (nano-vertico-mode)
+                (require 'nano-read)
 
-  	      (require 'nano-writer)
-  	      (require 'nano-org)
+                (require 'nano-org)
 
-  	      ;; (require 'nano-elfeed)
-  	      (require 'nano-term)
-  	      (require 'nano-kill)
-  	      (require 'nano-block)
+                (require 'nano-elfeed)
+                (require 'nano-term)
+                (require 'nano-kill)
+                (require 'nano-block)
 
-  	      (require 'nano-box))))
+                (require 'nano-box))))
 #+end_src
+  
+                

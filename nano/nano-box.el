@@ -89,7 +89,7 @@ is dynamic and will adapt automatically to the size of the window."
 
     (add-text-properties (+ beg 1) (+ beg 2) `(display ,(buffer-substring beg (+ beg 2))
                                                        cursor-intangible t))
-    (add-text-properties (- end 2) (- end 1) `(display ,(concat (buffer-substring (- end 2) (- end 0)) "")
+    (add-text-properties (- end 2) (- end 1) `(display ,(concat (buffer-substring (- end 2) (- end 1)) "")
                                                        cursor-intangible t))
     (add-text-properties (+ beg 0) (+ beg 1) `(face ,header-face
                                                     font-lock-face ,header-face
