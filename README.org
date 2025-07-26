@@ -9,7 +9,7 @@ This configuration is heavily based off of [[https://github.com/rougier][Nicolas
 
 This is a literate configuration, which means all the code blocks in this Org file will be exported using Org-Babel's tangle feature into their corresponding config files on save. As a result, all the configuration necessary will be in this file as far as possible. Sometime in the future, a Table of Contents will be implemented to make navigating this document easier.
 
-* Preambles
+* Preambles 
 
 The Early-Init file is executed before =init.el=, and hence is where we disable =package.el= in favour of Elpaca.
 
@@ -34,7 +34,7 @@ Now, we throw in a preamble comment in the Init file just in case someone reads 
 
 * Package Manager (Elpaca)
 
-This codeblock is directly from the Elpaca repository's README. I have only added a final expression integrating Elpaca with =use-package=.
+This codeblock is directly from the Elpaca repository's README. I have only added a final expression integrating Elpaca with ~use-package~.
 
 #+begin_src emacs-lisp
   (defvar elpaca-installer-version 0.11)
@@ -91,13 +91,12 @@ This codeblock is directly from the Elpaca repository's README. I have only adde
 This is a bunch of other niceties that I would like to have, since that would make configuration and usage a good bit easier.
 
 - Garbage collector reduction so startup is faster
-- Add all files in the =nano= directory (and other convenience directories) into the loading path
+- Add all files in the =nano/= directory into the loading path
 
 #+begin_src emacs-lisp
   (setq gc-cons-threshold 63000000
         gc-cons-percentage 0.6)
   (add-to-list 'load-path "~/.config/emacs/nano")
-  (add-to-list 'load-path "~/.config/emacs/org")
 #+end_src
 
 
@@ -105,47 +104,42 @@ This is a bunch of other niceties that I would like to have, since that would ma
 
 I use Evil-mode along with God-mode as an Evil state. I've tried Meow and didn't like it as much. I've tried God-mode as is and loved it, except that it lacked the pure Vim bindings. One issue that I'm still having is that =C-u= to scroll still doesn't work and I don't know why.
 
-Note that there is a =elpaca-wait= call at the end because some customizations I use require Evil to be loaded.
+Note that there is a ~elpaca-wait~ call at the end because some customizations I use require Evil to be loaded.
 
 #+begin_src emacs-lisp
-  (use-package evil
-    :ensure t
+  (use-package evil :ensure t
     :init
-    (setq evil-want-keybinding t)
-    (setq evil-undo-system 'undo-redo)
-    :config
-    (setq evil-default-state 'normal
+    (setq evil-want-keybinding nil
+          evil-undo-system 'undo-redo
+          evil-default-state 'normal
           evil-want-C-i-jump t
           evil-want-C-w-delete t
           evil-want-Y-yank-to-eol t
           evil-want-C-u-scroll t
           evil-want-C-d-scroll t)
-    (evil-mode 1))
+    :config (evil-mode 1))
 
-  (use-package evil-collection
-    :ensure t
-    :after evil
-    :init
-    (evil-collection-init))
+  (use-package evil-collection :ensure t :after evil
+    :init (evil-collection-init))
 
-  (use-package evil-god-state
-    :ensure t
-    :after evil
+  (use-package evil-god-state :ensure t :after evil
     :config
-    (evil-define-key 'normal global-map "," 'evil-execute-in-god-state)
-    (evil-define-key 'god global-map "escape" 'evil-god-state-bail))
+    (evil-define-key 'normal 'global "," 'evil-execute-in-god-state)
+    (evil-define-key 'god 'global "escape" 'evil-god-state-bail))
 
-  (use-package evil-surround
-    :ensure t
-    :after evil
-    :config
-    (global-evil-surround-mode 1))
+  (use-package evil-surround :ensure t :after evil
+    :config (global-evil-surround-mode 1))
 
-  (use-package evil-commentary
-    :ensure t
-    :after evil
+  (use-package evil-commentary :ensure t :after evil
+    :config (evil-commentary-mode))
+
+  (use-package evil-numbers :ensure t :after evil
     :config
-    (evil-commentary-mode))
+    (evil-define-key '(normal visual) 'global
+      (kbd "C-a") 'evil-numbers/inc-at-pt
+      (kbd "C-x") 'evil-numbers/dec-at-pt
+      (kbd "g C-a") 'evil-numbers/inc-at-pt-incremental
+      (kbd "g C-x") 'evil-numbers/dec-at-pt-incremental))
 
   (elpaca-wait)
 #+end_src
@@ -194,8 +188,8 @@ This is all the stuff I need to improve typography when using Emacs. This includ
     :config
     (ligature-set-ligatures
      'prog-mode '("<---" "<--"  "<<-" "<-" "->" "-->" "--->" "<->" "<-->" "<--->"
-                  "<---->" "<!--" "<==" "<===" "<=" "=>" "=>>" "==>" "===>" ">=" "<=>"
-                  "<==>" "<===>" "<====>" "<!---" "<~~" "<~" "~>" "~~>" "::" ":::"
+  		"<---->" "<!--" "<==" "<===" "<=" "=>" "=>>" "==>" "===>" ">=" "<=>"
+  		"<==>" "<===>" "<====>" "<!---" "<~~" "<~" "~>" "~~>" "::" ":::"
   		"==" "!=" "===" "!==" ":=" ":-" ":+" "<*" "<*>" "*>" "<|" "<|>" "|>"
   		"+:" "-:" "=:" "<******>" "++" "+++"))
     (global-ligature-mode t))
@@ -215,17 +209,26 @@ This is all the stuff I need to improve typography when using Emacs. This includ
   (use-package nerd-icons-ibuffer
     :ensure t
     :after nerd-icons
-    :hook (ibuffer-mode . nerd-icons-ibuffer-mode))
+    :hook (ibuffer-mode . nerd-icons-ibuffer-mode)
+    :config
+    (setq nerd-icons-ibuffer-formats
+  	'(("  "
+  	   mark " "
+  	   (icon 2 2) " "
+  	   (name 24 24 :left :elide) "  "))))
 
-  (use-package nerd-icons-completion
+  (use-package nerd-icons-corfu
     :ensure t
     :after nerd-icons
-    :hook (nerd-icons-completion-mode))
+    :after corfu
+    :config (add-to-list 'corfu-margin-formatters #'nerd-icons-corfu-formatter))
 
   (use-package colorful-mode
     :ensure t
     :config
     (global-colorful-mode))
+
+  (elpaca-wait)
 #+end_src
 
 
@@ -235,21 +238,22 @@ This has some nice features that I would like when using the builtin Dired. The 
 
 #+begin_src emacs-lisp
   (require 'dired)
+  (require 'dired-x)
   (setq dired-listing-switches
-        "-l --almost-all --human-readable --group-directories-first")
+        "-l --almost-all --human-readable --group-directories-first"
+  	dired-omit-files
+        (concat dired-omit-files "\\|^\\..+$\\|^__pycache__$"))
   (put 'dired-find-alternate-file 'disabled nil)
   (add-hook 'dired-mode-hook 'dired-hide-details-mode)
+  (add-hook 'dired-mode-hook 'dired-omit-mode)
 
-  (defun new-dired-up-directory ()
-    "Take dired up one directory and kill the previous buffer"
-    (interactive)
-    (let ((old (current-buffer)))
-      (dired-up-directory)
-      (kill-buffer old)))
-
+  (define-key global-map (kbd "C-x C-d") (lambda () (interactive) (dired ".")))
   (evil-define-key 'normal dired-mode-map
-    "h" 'new-dired-up-directory
+    "g." 'dired-omit-mode
+    "h" (lambda () (interactive) (find-alternate-file ".."))
     "l" 'dired-find-alternate-file
+    "L" (lambda () (interactive)
+	  (start-process "xdg" nil "xdg-open" (dired-get-file-for-visit)))
     "n" 'evil-search-next
     "N" 'evil-search-previous
     "o" 'dired-sort-toggle-or-edit
@@ -272,6 +276,71 @@ As much as I need some good buffer management tools, I don't like how IBuffer be
        (evil-define-key 'normal ibuffer-mode-map
          (kbd "v") 'ibuffer-toggle-marks
          (kbd "l") 'ibuffer-visit-buffer)))
+
+  (setq ibuffer-saved-filter-groups
+        '(("custom"
+  	 ("Emacs config" (filename . ".config/emacs"))
+  	 ("QTile config" (filename . ".config/qtile"))
+  	 ("Org files" (mode . org-mode))
+  	 ("Code" (derived-mode . prog-mode))
+  	 ("Shell scripts" (mode . sh-mode))
+  	 ("Text files" (and (mode . text-mode)
+  			    (not (starred-name))))
+  	 ("Dired" (mode . dired-mode))
+  	 ("Magit" (name . "\*magit"))
+  	 ("Auxiliary buffers" (starred-name)))))
+  (setq ibuffer-show-empty-filter-groups nil
+        ibuffer-use-header-line nil
+        ibuffer-display-summary nil
+        ibuffer-eliding-string "…"
+        ibuffer-marked-char ?\
+        ibuffer-modified-char ?\
+        ibuffer-read-only-char ?\
+        ibuffer-deletion-char ?\)
+#+end_src
+
+The next snippet is all about making the IBuffer buffer that much prettier. This is also pretty much mooched off of Nicolas Rougier's NANO-sidebar package.
+
+#+begin_src emacs-lisp
+  (defun ibuffer-advice (_format)
+    (with-current-buffer "*Ibuffer*"
+      (save-excursion
+      (let ((inhibit-read-only t))
+
+        ;; Remove header and insert ours
+        (goto-char (point-min))
+        (search-forward " \n" nil t)
+        (search-forward " \n" nil t)
+        (delete-region 1 (point))
+        (goto-char (point-min))
+        (insert (concat
+                 (propertize "\n" 'face '(:height 0.8))
+                 (propertize "Buffer List"
+                             'face `(org-document-title nano-sans))
+                 (propertize " "  'display `(raise -0.35))
+                 "\n"))
+        (insert "")
+
+        ;; Transform titles
+        (goto-char (point-min))
+        (while (re-search-forward "\\[ \\(.*\\) \\]" nil t)
+          (let* ((title (match-string 0))
+                 (property (get-text-property 0 'ibuffer-filter-group-name title)))
+            (replace-match "\n")
+            (insert (concat
+                     (propertize
+                      (substring title 2 -2)
+                      'ibuffer-filter-group-name property
+  		      'face '(org-level-2 nano-sans))
+                     "\n"))))))))
+
+  (defun ibuffer-setup ()
+    (ibuffer-switch-to-saved-filter-groups "custom")
+    (ibuffer-auto-mode 1))
+
+  (advice-add 'ibuffer-update-title-and-summary :after #'ibuffer-advice)
+  (add-hook 'ibuffer-mode-hook #'ibuffer-setup)
+  (define-key global-map (kbd "C-x C-b") 'ibuffer)
 #+end_src
 
 
@@ -293,15 +362,19 @@ This section was originally about LaTeX and its rendering. Now, it's purely for 
 
 * Completions and Spellchecking
 
-I'm using Corfu at the moment for my completions at point.
+** Completions at point
 
-#+begin_src emacs-lisp :tangle not-init.el
+I'm (not really) using Corfu at the moment. Haven't tried out other completion frameworks
+
+#+begin_src emacs-lisp
   (use-package corfu
     :ensure t
     :config
     (setq corfu-auto t)
     (global-corfu-mode))
 #+end_src
+
+** Spell checking
 
 For spellchecking, I was using flyspell, but I'm swtching to jinx.
 
@@ -311,6 +384,35 @@ For spellchecking, I was using flyspell, but I'm swtching to jinx.
     :bind (("C-!" . jinx-correct)
            ("C-@" . jinx-languages)
            ("C-x C-!" . global-jinx-mode)))
+#+end_src
+
+** Syntax checking and diagnostics
+
+For syntax checking, I'm starting to use flymake-mode, which should integrate decently with the version of ~nano-modeline~ that I have.
+I'm using custom fringe bitmaps to indicate the locations of errors, warnings and notes.
+
+#+begin_src emacs-lisp
+  ;; Define fringe bitmaps
+
+  (let ((block (- (expt 2 16) (expt 2 12))))
+    (define-fringe-bitmap 'flymake-error-bitmap
+      (vector block) nil 16 '(top t))
+    (define-fringe-bitmap 'flymake-warning-bitmap
+      (vector block) nil 16 '(top t))
+    (define-fringe-bitmap 'flymake-note-bitmap
+      (vector block) nil 16 '(top t))
+    (set-fringe-bitmap-face 'flymake-note-bitmap '(:foreground "#7287fd"))
+    (set-fringe-bitmap-face 'flymake-warning-bitmap '(:foreground "#fe640b"))
+    (set-fringe-bitmap-face 'flymake-error-bitmap '(:foreground "#d20f39")))
+
+  (add-hook 'prog-mode-hook #'flymake-mode)
+  (evil-define-key 'normal flymake-mode-map "]d" 'flymake-goto-next-error)
+  (evil-define-key 'normal flymake-mode-map "[d" 'flymake-goto-prev-error)
+  (setq flymake-start-on-flymake-mode t
+        flymake-indicator-type 'fringes
+        flymake-error-bitmap 'flymake-error-bitmap
+        flymake-warning-bitmap 'flymake-warning-bitmap
+        flymake-note-bitmap 'flymake-note-bitmap)
 #+end_src
 
 
@@ -329,25 +431,41 @@ Things i've tried:
 #+end_src
 
 
-* Org Mode
+* Org Mode and $\LaTeX$
 
 All hail the OrgMode system! Lots of very helpful modules have been used here, and several more can be added once I start getting more comfortable with them.
 
+First, since we're using ~org-cdlatex-mode~, we need to also install auctex, which might cause some issues.
+
+#+begin_src emacs-lisp
+  (use-package auctex
+    :ensure (:repo "https://git.savannah.gnu.org/git/auctex.git"
+             :branch "main"
+  	   :pre-build (("make" "elpa"))
+  	   :build (:not elpaca--compile-info)
+  	   :files ("*.el" "doc/*.info*" "etc" "images" "latex" "style")
+             :version (lambda (_) (require 'auctex) AUCTeX-version)))
+
+  (use-package cdlatex
+    :ensure t)
+#+end_src
+
+Now we can get back to org.
+
 #+begin_src emacs-lisp
   (cl-pushnew 'org elpaca-ignored-dependencies)
-  (require 'org-margin)
 
   (use-package org
     :ensure nil
-    :hook (org-mode . org-margin-mode)
     :hook (org-mode . visual-line-mode)
     :hook (org-mode . mixed-pitch-mode)
     :hook (org-mode . org-display-inline-images)
+    :hook (org-mode . turn-on-org-cdlatex)
     :config
     (setq org-ellipsis "..."
   	org-fontify-quote-and-verse-blocks t
           org-hide-emphasis-markers t
-          org-hide-leading-stars t
+          org-hide-leading-stars nil
   	org-cycle-separator-lines 2
           org-pretty-entities t
           org-use-sub-superscripts t
@@ -372,6 +490,22 @@ All hail the OrgMode system! Lots of very helpful modules have been used here, a
      'org-babel-load-languages
      '((emacs-lisp . t)
        (python . t))))
+#+end_src
+
+** Org-Roam
+
+I'll start using Zettelkasten for my notes, because otherwise I'll end up creating multiple unnecessarily redundant files with either too little or too much information.
+
+#+begin_src emacs-lisp
+  (use-package org-roam
+    :ensure t
+    :config
+    (setq org-roam-directory "~/Notes")
+    (org-roam-db-autosync-mode)
+    :bind (("C-c n f" . 'org-roam-node-find)
+  	 ("C-c n i" . 'org-roam-node-insert)
+  	 ("C-c n g" . 'org-roam-graph)
+	   ("C-c n c" . 'org-roam-capture)))
 #+end_src
 
 ** Jupyter and other Babel shenanigans
@@ -419,7 +553,7 @@ Never mind, I'm discarding this module since it causes security issues, and has 
 
 ** UI Stuff
 
-These are some nice-to-haves that make Org files look good in Emacs. I'm expecting to have to overwrite some of the =org-modern= shenanigans to fit with my current config.
+These are some nice-to-haves that make Org files look good in Emacs.
 
 #+begin_src emacs-lisp
   (use-package org-autolist
@@ -431,8 +565,6 @@ These are some nice-to-haves that make Org files look good in Emacs. I'm expecti
     :ensure t
     :after org
     :hook (org-mode . mixed-pitch-mode))
-
-  (require 'org-pretty-table)
 #+end_src
 
 
@@ -455,6 +587,14 @@ This feels more comfortable and simultaneously not. I need to get more comfortab
     :ensure t
     :config
     (exec-path-from-shell-initialize))
+
+  (evil-define-key 'normal eglot-mode-map
+    (kbd "g f") 'eglot-format-buffer
+    (kbd "g r") 'eglot-rename
+    (kbd "g c a") 'eglot-code-actions
+    (kbd "g d") 'eglot-find-definition
+    (kbd "g t") 'eglot-find-type-definition
+    (kbd "g l") 'eglot-list-references)
 #+end_src
 
 
@@ -513,7 +653,7 @@ I'll be using Elfeed as my RSS reader for news and tech updates.
 #+begin_src emacs-lisp
   (use-package stripes :ensure t)
   (use-package elfeed :ensure t)
-  (use-package elfeed-org :ensure t :after elfeed)
+  (use-package elfeed-org :ensure t :after elfeed :config (elfeed-org))
 #+end_src
 
 
@@ -547,19 +687,19 @@ I did try learning Dyalog APL for the APL Forge contest, and found it quite cool
 #+end_src
 
 
-* NANO Emacs modules
+* NΛNO Emacs modules
 
-This is the bit that is (more or less) entirely copy-pasted from Nicolas Rougier's repositories. These are what make Emacs look so incredibly clean. These still have some bits to clean up, so this is not nearly final.
+This is the bit that was (more or less) entirely copy-pasted from Nicolas Rougier's repositories. These are what make Emacs look so incredibly clean. After yoinking them from the repos, I've made major changes to them in order to make them more compatible with my editing style and colour scheme.
 
-For now, I'll be keeping all the Elisp in separate files in the =nano/= directory and =require=-ing them here. Ideally I would like to include all Elisp in this file, but that might make this unreadable.
+For now, I'll be keeping all the Elisp in separate files in the =nano/= directory and ~require~-ing them here. Ideally I would like to include all Elisp in this file, but that might make this unreadable.
 
 #+begin_src emacs-lisp
   (add-hook 'elpaca-after-init-hook
             (lambda ()
               (progn
                 (require 'nano-theme)
-                (nano-mode)
-  	      (nano-light)
+  	      (nano-mode)
+                (nano-light)
 
                 (require 'nano-modeline)
                 (nano-modeline nil nil t)
@@ -572,15 +712,14 @@ For now, I'll be keeping all the Elisp in separate files in the =nano/= director
                 (require 'nano-vertico)
                 (nano-vertico-mode)
                 (require 'nano-read)
+  	      (require 'nano-sidebar)
 
                 (require 'nano-org)
 
                 (require 'nano-elfeed)
                 (require 'nano-term)
                 (require 'nano-kill)
-                (require 'nano-block)
-
-                (require 'nano-box))))
+                (require 'nano-block))))
 #+end_src
   
                 

@@ -24,7 +24,7 @@
 
 ;;; Code:
 (require 'eat)
-(require 'nano-border)
+(require 'nano-box)
 (require 'nano-popup)
 
 (add-hook 'eat-exit-hook (lambda (process)

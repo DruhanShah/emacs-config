@@ -1,7 +1,7 @@
 ;;; nano-splash.el --- N Λ N O Splash -*- lexical-binding: t -*-
 ;; ---------------------------------------------------------------------
 ;; GNU Emacs / N Λ N O Splash
-;; Copyright (C) 2020-2021 - N Λ N O developers 
+;; Copyright (C) 2020-2021 - N Λ N O developers
 ;;
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -16,16 +16,18 @@
 ;; You should have received a copy of the GNU General Public License
 ;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ;; ---------------------------------------------------------------------
+;;; Commentary:
 ;; 
 ;; This file defines a splash screen
 ;;  - No logo, no modeline, no scrollbars
 ;;  - Any key / mouse click kills the splash screen
 ;;  - With emacs-mac (Mituharu), splash screen is faded out after .5 seconds
 ;;
-;; Note: The screen is not shown if there are opened file buffers. For
-;;       example, if you start emacs with a filename on the command
+;; Note: The screen is not shown if there are opened file buffers.  For
+;;       example, if you start Emacs with a filename on the command
 ;;       line, the splash screen is not shown.
 
+;;; Code:
 (require 'subr-x)
 (require 'cl-lib)
 
@@ -34,23 +36,23 @@
   "N Λ N O")
 
 (defgroup nano-splash nil
-  "Splash screen" :group 'nano)
+  "Splash screen." :group 'nano)
 
 (defcustom nano-splash-title "GNU Emacs / N Λ N O"
-  "Splash screen title"
+  "Splash screen title."
   :type 'string :group 'nano-splash)
 
 (defcustom nano-splash-subtitle "Emacs made simple"
-  "Splash screen subtitle"
+  "Splash screen subtitle."
   :type 'string :group 'nano-splash)
 
 (defcustom nano-splash-duration 10.5
-  "Splash screen duration (in seconds)"
+  "Splash screen duration (in seconds)."
   :type 'float :group 'nano-splash)
 
 
 (defun nano-splash ()
-  "Nano Emacs splash screen"
+  "Nano Emacs splash screen."
   
   (interactive)
 
@@ -86,10 +88,10 @@
 
           ;; Vertical padding to center
           (insert-char ?\n padding-center)
-          (insert (propertize nano-splash-title 'face 'nano-strong))
+          (insert (propertize nano-splash-title 'face 'bold))
           (center-line)
           (insert "\n")
-          (insert (propertize nano-splash-subtitle 'face 'nano-faded))
+          (insert (propertize nano-splash-subtitle 'face 'font-lock-comment-face))
           (center-line)
 
           (goto-char 0)
@@ -105,7 +107,7 @@
 
 
 (defun center-string (string)
-  "Pad a string with space on the left such as to center it"
+  "Pad a STRING with space on the left such as to center it."
   (let* ((padding (/ (- (window-body-width) (length string)) 2))
          (padding (+ (length string) padding)))
     ;; If the string is displayed as a tooltip, don't pad it
@@ -118,14 +120,16 @@
 ;;  https://github.com/railwaycat/homebrew-emacsmacport
 (defvar mac-animation-locked-p nil)
 (defun mac-animation-toggle-lock ()
+  "Toggle the lock for mac animation.  Only on macOS."
   (setq mac-animation-locked-p (not mac-animation-locked-p)))
 (defun mac-animation-fade-out (duration &rest args)
+  "Fade out current frame for DURATION with other ARGS.  Only on macOS."
   (unless mac-animation-locked-p
     (mac-animation-toggle-lock)
     (mac-start-animation nil :type 'fade-out :duration duration)
     (run-with-timer duration nil 'mac-animation-toggle-lock)))
 (defun nano-splash-fade-out ()
-  "Fade out current frame for duration and goes to command-or-bufffer"
+  "Fade out current frame for duration and go to command-or-bufffer."
   (interactive)
   (defalias 'mac-animation-fade-out-local
     (apply-partially 'mac-animation-fade-out 0.5))
@@ -164,3 +168,4 @@
             inhibit-startup-echo-area-message t)))
 
 (provide 'nano-splash)
+;;; nano-splash.el ends here

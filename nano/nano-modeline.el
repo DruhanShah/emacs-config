@@ -1,5 +1,125 @@
+;;; nano-modeline.el --- N Λ N O modeline -*- lexical-binding: t -*-
+
+;; Copyright (C) 2021-2024 Free Software Foundation, Inc.
+
+;; Maintainer: Nicolas P. Rougier <Nicolas.Rougier@inria.fr>
+;; URL: https://github.com/rougier/nano-modeline
+;; Version: 2.0
+;; Package-Requires: ((emacs "27.1"))
+;; Keywords: convenience, mode-line, header-line
+
+;; This file is not part of GNU Emacs.
+
+;; This file is free software; you can redistribute it and/or modify
+;; it under the terms of the GNU General Public License as published by
+;; the Free Software Foundation; either version 3, or (at your option)
+;; any later version.
+
+;; This file is distributed in the hope that it will be useful,
+;; but WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+;; GNU General Public License for more details.
+
+;; For a full copy of the GNU General Public License
+;; see <https://www.gnu.org/licenses/>.
+
+;;; Commentary:
+;;
+;; Nano modeline is a an alternative to the GNU/Emacs modeline. It can
+;; be displayed at the bottom (mode-line) or at the top (header-line)
+;; depending on the nano-modeline-position custom setting. There are
+;; several modelines that can be installed on a per-mode basis or as
+;; the default.
+;;
+;; Everything is configurable via the nano-modeline customization group.
+;;
+;; Usage example:
+;;
+;; Use default modeline for the current buffer
+;; (nano-modeline)
+;;
+;; Install the modeline for all prog buffers:
+;; (add-hook 'prog-mode-hook
+;;    (lambda () (nano-modeline nano-modeline-format-default)))
+;;
+;; Make the default modeline the default for all buffers:
+;; (nano-modeline nil t)
+;;
+;;; NEWS:
+;;
+;; Version  2.0
+;; - Full rewrite for simplification
+;; - Advanced customization interfaces
+;; - No more svg buttons (only text buttons)
+;; - No mode active/inactive faces (active indicator instead)
+;; - Pixel precise alignment of the mode-line/header-line
+;;
+;; Version  1.1.0
+;; - Minor bugfix with org-capture
+;; - Better mu4e message mode line
+;; - Fixed eat mode line
+;; - Better margin/fringe alignment
+;; - API change: button now take advantage of new svg-lib API
+;; - Fixed flat-button style
+;;
+;; Version 1.0.1
+;; - Minor bugfix
+;;
+;; Version 1.0.0
+;; - Complete rewrite to make it simpler & faster
+;; - API break: No longer a minor mode
+;; - Activatable buttons can be added and grouped
+;; - Modeline can be now be activated through modes hook
+;;
+;; Version 0.7.2
+;; - Fix a bug in info mode (breadcrumbs)
+;; - Fix mu header mode for version 1.8
+;; - Put back padding (for default style)
+;;
+;; Version 0.7.1
+;; - Fix a bug with mu4e-dashboard
+;; - Fix a bug in pdf view mode
+;; - Better org-capture mode
+;;
+;; Version 0.7
+;; - Prefix is now an option (none, status or icon)
+;; - Prefix can be replaced by icons
+;; - Better space computation
+;; - New imenu-list mode
+;; - Indirect buffers are now handled properly
+;; - Bugfix in org-clock-mode
+;;
+;; Version 0.6
+;; - Spaces have face that enforce active/inactive
+;; - Better marker for dedicated windows
+;; - Internal reordering of modes, most frequent first
+;;    (educated guess, might vary greatly with users)
+;;
+;; Version 0.5.1
+;; - Bug fix (make-obsolete-variable)
+;; - Added marker for dedicated window
+;;
+;; Version 0.5
+;; - Dynamic version that is now configurable thanks to the wonderful
+;;   contribution of Hans Donner (@hans-d)
+;;
+;; Version 0.4
+;; - Reverted to RO/RW/** default prefix
+;;
+;; Version 0.3
+;; - Usage of :align-to: properties for better alignment
+;; - Added elpher mode
+;; - Fix user mode
+;;
+;; Version 0.2
+;; - Implements modeline as minor mode
+;;
+;; Version 0.1
+;; - Submission to ELPA
+;;
+
 ;;; Code:
-(require 'nano-theme-support)
+(require 'nano-theme)
 
 (defgroup nano nil
   "N Λ N O"
@@ -56,6 +176,7 @@
                      (const :tag "Name" nano-modeline-element-buffer-name)
                      (const :tag "Mode" nano-modeline-element-buffer-mode)
                      (const :tag "VC mode" nano-modeline-element-buffer-vc-mode)
+                     (const :tag "Diagnostics" nano-modeline-element-diagnostics)
                      (const :tag "Position" nano-modeline-element-buffer-position))
                   (choice :tag "→ Terminal"
                      (const :tag "Status" nano-modeline-element-terminal-status)
@@ -107,12 +228,11 @@
 
 (defcustom nano-modeline-symbol-list
   '((buffer-read-only  . "󰌾")
-    (buffer-read-write . "")
     (buffer-modified   . "󰆓")
     (buffer-terminal   . ">_")
     (buffer-clone      . "CC")
     (buffer-narrow     . "NW")
-    (window-close . "CLOSE")
+    (window-close . "")
     (window-active . "●")
     (window-inactive . "")
     (window-dedicated . "󰐃")
@@ -170,7 +290,7 @@ left and right for symbols that do not align perfectly."
   :group 'nano-modeline)
 
 
-(defcustom nano-modeline-padding '(0.20 . 0.25)
+(defcustom nano-modeline-padding '(0.35 . 0.40)
   "Default vertical space adjustment (in fraction of character height) for
 the buffer status element."
   :type '(cons (float :tag "Top spacing")
@@ -178,86 +298,87 @@ the buffer status element."
   :group 'nano-modeline)
 
 (defface nano-modeline-face-buffer-read-only
-  `((t (:foreground ,(face-background 'default)
-        :background ,(face-foreground 'default)
+  `((t (:foreground ,nano-base
+        :background ,nano-maroon
         :weight ,(face-attribute 'default :weight))))
   "Face for read only buffer"
   :group 'nano-modeline-faces)
 
 (defface nano-modeline-face-buffer-read-write
-  `((t (:foreground ,(face-background 'font-lock-comment-face nil 'default)
-        :background ,(face-foreground 'font-lock-comment-face nil 'default)
+  `((t (:foreground ,nano-base
+        :background ,nano-overlay1
         :weight ,(face-attribute 'bold :weight))))
   "Face for read-write buffer"
   :group 'nano-modeline-faces)
 
 (defface nano-modeline-face-buffer-modified
-  `((t (:foreground ,(face-background 'default)
-        :background ,(face-foreground 'warning nil 'default)
+  `((t (:foreground ,nano-base
+        :background ,nano-mauve
         :weight ,(face-attribute 'bold :weight))))
   "Face for modified buffer"
   :group 'nano-modeline-faces)
 
 (defface nano-modeline-face-buffer-marked
-  `((t (:foreground ,(face-background 'default)
-        :background ,(face-foreground 'error nil 'default)
+  `((t (:foreground ,nano-base
+        :background ,nano-red
         :weight ,(face-attribute 'bold :weight))))
   "Face for marked buffer"
   :group 'nano-modeline-faces)
 
 (defface nano-modeline-face-tag
-  `((t ( :foreground ,(face-background 'default)
-         :background ,(face-foreground 'link nil 'default)
+  `((t ( :foreground ,nano-base
+         :background ,nano-blue
          :weight ,(face-attribute 'bold :weight))))
   "Default face"
   :group 'nano-modeline-faces)
 
 (defface nano-modeline-face-default
-  `((t (:foreground ,(face-foreground 'default))))
+  `((t (:foreground ,nano-text)))
   "Default face"
   :group 'nano-modeline-faces)
 
 (defface nano-modeline-face-primary
-  `((t (:foreground ,(face-foreground 'default)
+  `((t (:foreground ,nano-text
+	:family ,(face-attribute 'variable-pitch :family)
         :weight ,(face-attribute 'bold :weight))))
   "Face for primary information"
   :group 'nano-modeline-faces)
 
 (defface nano-modeline-face-secondary
-  `((t (:foreground ,(face-foreground 'font-lock-comment-face nil 'default))))
+  `((t (:foreground ,nano-subtext0)))
   "Face for secondary information"
   :group 'nano-modeline-faces)
 
 (defface nano-modeline-face-button-active
-  `((t (:foreground ,(face-background 'link nil 'default)
-        :background ,(face-foreground 'link nil 'default)
+  `((t (:foreground ,nano-base
+        :background ,nano-lavender
         :weight ,(face-attribute 'bold :weight))))
   "Active button face"
   :group 'nano-modeline-faces)
 
 (defface nano-modeline-face-button-progress
-  `((t (:foreground ,(face-background 'default)
-        :background ,(face-foreground 'error nil 'default)
+  `((t (:foreground ,nano-base
+        :background ,nano-peach
         :weight ,(face-attribute 'bold :weight))))
   "Progress button face"
   :group 'nano-modeline-faces)
 
 (defface nano-modeline-face-button-dangerous
-  `((t (:foreground ,(face-background 'default)
-        :background ,(face-foreground 'error nil 'default)
+  `((t (:foreground ,nano-base
+        :background ,nano-maroon
         :weight ,(face-attribute 'bold :weight))))
   "Dangerous button face"
   :group 'nano-modeline-faces)
 
 (defface nano-modeline-face-button-inactive
-  `((t (:foreground ,(face-foreground 'font-lock-comment-face nil 'default)
-        :background ,(face-background 'default))))
+  `((t (:foreground ,nano-overlay0
+        :background ,nano-base)))
   "Inactive button face."
   :group 'nano-modeline-faces)
 
 (defface nano-modeline-face-button-highlight
-  `((t (:foreground ,(face-background 'default)
-        :background ,(face-foreground 'warning nil 'default)
+  `((t (:foreground ,nano-base
+        :background ,nano-blue
         :weight ,(face-attribute 'bold :weight))))
   "Highlight button face."
   :group 'nano-modeline-faces)
@@ -266,11 +387,10 @@ the buffer status element."
 (defcustom nano-modeline-format-default
   (cons '(nano-modeline-element-buffer-mode
           nano-modeline-element-space
-          nano-modeline-element-buffer-name
-          nano-modeline-element-space
+          nano-modeline-element-buffer-name)
+        '(nano-modeline-element-diagnostics
 	  nano-modeline-element-space
-          nano-modeline-element-buffer-vc-mode)
-        '(nano-modeline-element-buffer-position
+	  nano-modeline-element-buffer-position
           nano-modeline-element-window-status
           nano-modeline-element-space))
     "Default format"
@@ -486,7 +606,7 @@ FACE can be given to be used for the prefix and the suffix."
          (left (if (not (consp left))
                    (cons left '(0 . 0))
                  left))
-         (right (or right (cdr nano-modeline-alignment)))
+         (right (or right (cdr nano-modeline-alignment)))
          (right (if (not (consp right))
                     (cons right '(0 . 0))
                   right))
@@ -565,7 +685,7 @@ modeline."
          (face  (or face (cond (buffer-read-only    'nano-modeline-face-buffer-read-only)
                                ((buffer-modified-p) 'nano-modeline-face-buffer-modified)
                                (t                   'nano-modeline-face-buffer-read-write))))
-         (symbol (or symbol (cond ((buffer-narrowed-p)  (nano-modeline-symbol 'buffer-narrow))
+	 (symbol (or symbol (cond ((buffer-narrowed-p)  (nano-modeline-symbol 'buffer-narrow))
                                   ((buffer-base-buffer) (nano-modeline-symbol 'buffer-clone))
                                   (buffer-read-only     (nano-modeline-symbol 'buffer-read-only))
                                   (t                    (nerd-icons-icon-for-mode major-mode))))))
@@ -579,17 +699,44 @@ modeline."
   "Return a string with the buffer name"
 
   (propertize
-   (format-mode-line "%b")
+   (format-mode-line " %b ")
    'face 'nano-modeline-face-primary))
 
 (defun nano-modeline-element-buffer-vc-mode ()
-  "VC information as (branch, file status)"
+  "VC information as (branch, file status)."
 
   (when vc-mode
       (when-let* ((file (buffer-file-name))
                   (branch (substring-no-properties vc-mode 5)))
         (propertize (format "%s %s" (nano-modeline-symbol 'vc-branch) branch)
                     'face 'nano-modeline-face-secondary))))
+
+(defun nano-modeline-diagnostic-counter (type)
+  "Compute number of diagnostics in buffer with TYPE's severity.
+TYPE is usually keyword `:error', `:warning' or `:note'."
+  (let ((count 0))
+    (dolist (d (flymake-diagnostics))
+      (when (= (flymake--severity type)
+               (flymake--severity (flymake-diagnostic-type d)))
+	(cl-incf count)))
+    (if (cl-plusp count)
+	(concat (number-to-string count) " ")
+      "")))
+
+(defun nano-modeline-element-diagnostics-unit (type indicator &optional face)
+  "Diagnostic information for TYPE using FACE."
+  (let* ((face (or face 'nano-modeline-face-secondary))
+	 (count (nano-modeline-diagnostic-counter type))
+	 (indicator (if (string-empty-p count) "" indicator)))
+    (propertize (format "%s%s" indicator count)
+		'face face)))
+
+(defun nano-modeline-element-diagnostics ()
+  "Return a string with the flymake diagnostics."
+  (let ((errors (nano-modeline-element-diagnostics-unit :error " " 'error))
+	(warnings (nano-modeline-element-diagnostics-unit :warning " " 'warning))
+	(notes (nano-modeline-element-diagnostics-unit :note " " 'link)))
+    (concat errors warnings notes " ")))
 
 (defun nano-modeline-element-buffer-position ()
   "Return a string describing current position in buffer."

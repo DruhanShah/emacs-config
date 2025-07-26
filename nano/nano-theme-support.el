@@ -168,86 +168,244 @@
   "Default proportional sans font."
   :group 'nano-theme-fonts)
 
-(defface nano-serif
-  '((t (:family "Literata" :height 110 :weight light)))
-  "Default proportional serif font."
-  :group 'nano-theme-fonts)
+;; Colours mooched off of Catppuccin Latte and Frappe
 
-(defcustom nano-light-foreground "#1e1e2e"
-  "Default foreground color"
+(defcustom nano-light-rosewater "#dc8a78"
+  "Light theme colour: rosewater."
+  :type 'color :group 'nano-theme-light)
+(defcustom nano-light-flamingo "#dd7878"
+  "Light theme colour: flamingo."
+  :type 'color :group 'nano-theme-light)
+(defcustom nano-light-pink "#ea76cb"
+  "Light theme colour: pink."
+  :type 'color :group 'nano-theme-light)
+(defcustom nano-light-mauve "#8839ef"
+  "Light theme colour: mauve."
+  :type 'color :group 'nano-theme-light)
+(defcustom nano-light-red "#d20f39"
+  "Light theme colour: red."
+  :type 'color :group 'nano-theme-light)
+(defcustom nano-light-maroon "#e64553"
+  "Light theme colour: maroon."
+  :type 'color :group 'nano-theme-light)
+(defcustom nano-light-peach "#fe640b"
+  "Light theme colour: peach."
+  :type 'color :group 'nano-theme-light)
+(defcustom nano-light-yellow "#df8e1d"
+  "Light theme colour: yellow."
+  :type 'color :group 'nano-theme-light)
+(defcustom nano-light-green "#40a02b"
+  "Light theme colour: green."
+  :type 'color :group 'nano-theme-light)
+(defcustom nano-light-teal "#179299"
+  "Light theme colour: teal."
+  :type 'color :group 'nano-theme-light)
+(defcustom nano-light-sky "#04a5e5"
+  "Light theme colour: sky."
+  :type 'color :group 'nano-theme-light)
+(defcustom nano-light-sapphire "#209fb5"
+  "Light theme colour: sapphire."
+  :type 'color :group 'nano-theme-light)
+(defcustom nano-light-blue "#1e66f5"
+  "Light theme colour: blue."
+  :type 'color :group 'nano-theme-light)
+(defcustom nano-light-lavender "#7287fd"
+  "Light theme colour: lavender."
+  :type 'color :group 'nano-theme-light)
+(defcustom nano-light-text "#4c4f69"
+  "Light theme colour: text."
+  :type 'color :group 'nano-theme-light)
+(defcustom nano-light-subtext1 "#5c5f77"
+  "Light theme colour: subtext1."
+  :type 'color :group 'nano-theme-light)
+(defcustom nano-light-subtext0 "#6c6f85"
+  "Light theme colour: subtext0."
+  :type 'color :group 'nano-theme-light)
+(defcustom nano-light-overlay2 "#7c7f93"
+  "Light theme colour: overlay2."
+  :type 'color :group 'nano-theme-light)
+(defcustom nano-light-overlay1 "#8c8fa1"
+  "Light theme colour: overlay1."
+  :type 'color :group 'nano-theme-light)
+(defcustom nano-light-overlay0 "#9ca0b0"
+  "Light theme colour: overlay0."
+  :type 'color :group 'nano-theme-light)
+(defcustom nano-light-surface2 "#acb0be"
+  "Light theme colour: surface2."
+  :type 'color :group 'nano-theme-light)
+(defcustom nano-light-surface1 "#bcc0cc"
+  "Light theme colour: surface1."
+  :type 'color :group 'nano-theme-light)
+(defcustom nano-light-surface0 "#ccd0da"
+  "Light theme colour: surface0."
+  :type 'color :group 'nano-theme-light)
+(defcustom nano-light-base "#eff1f5"
+  "Light theme colour: base."
+  :type 'color :group 'nano-theme-light)
+(defcustom nano-light-mantle "#e6e9ef"
+  "Light theme colour: mantle."
+  :type 'color :group 'nano-theme-light)
+(defcustom nano-light-crust "#dce0e8"
+  "Light theme colour: crust."
   :type 'color :group 'nano-theme-light)
 
-(defcustom nano-light-background "#eff1f5"
-  "Default background color"
-  :type 'color :group 'nano-theme-light)
-
-(defcustom nano-light-highlight "#e6e9ef"
-  "Highlight color is used to highlight part of the screen."
-  :type 'color :group 'nano-theme-light)
-
-(defcustom nano-light-subtle "#dce0e8"
-  "Subtle color is used to suggest a physical area on the screen."
-  :type 'color :group 'nano-theme-light)
-
-(defcustom nano-light-faded "#8c8fa1"
-  "Faded face is for information that are less important."
-  :type 'color :group 'nano-theme-light)
-
-(defcustom nano-light-salient "#8839ef"
-  "Salient color is used for information that are important."
-  :type 'color :group 'nano-theme-light)
-
-(defcustom nano-light-strong "#11111b"
-  "Strong color is used for information of a structural nature."
-  :type 'color :group 'nano-theme-light)
-
-(defcustom nano-light-popout "#fe640b"
-  "Popout colour is used for information that needs attention."
-  :type 'color :group 'nano-theme-light)
-
-(defcustom nano-light-critical "#d20f39"
-  "Critical face is for information that requires immediate action."
-  :type 'color :group 'nano-theme-light)
-
-(defcustom nano-dark-foreground "#cdd6f4"
-  "Default foreground color"
+(defcustom nano-dark-rosewater "#f2d5cf"
+  "Dark theme colour: rosewater."
+  :type 'color :group 'nano-theme-dark)
+(defcustom nano-dark-flamingo "#eebebe"
+  "Dark theme colour: flamingo."
+  :type 'color :group 'nano-theme-dark)
+(defcustom nano-dark-pink "#f4b8e4"
+  "Dark theme colour: pink."
+  :type 'color :group 'nano-theme-dark)
+(defcustom nano-dark-mauve "#ca9ee6"
+  "Dark theme colour: mauve."
+  :type 'color :group 'nano-theme-dark)
+(defcustom nano-dark-red "#e78284"
+  "Dark theme colour: red."
+  :type 'color :group 'nano-theme)
+(defcustom nano-dark-maroon "#ea999c"
+  "Dark theme colour: maroon."
+  :type 'color :group 'nano-theme-dark)
+(defcustom nano-dark-peach "#ef9f76"
+  "Dark theme colour: peach."
+  :type 'color :group 'nano-theme-dark)
+(defcustom nano-dark-yellow "#e5c890"
+  "Dark theme colour: yellow."
+  :type 'color :group 'nano-theme-dark)
+(defcustom nano-dark-green "#a6d189"
+  "Dark theme colour: green."
+  :type 'color :group 'nano-theme-dark)
+(defcustom nano-dark-teal "#81c8be"
+  "Dark theme colour: teal."
+  :type 'color :group 'nano-theme-dark)
+(defcustom nano-dark-sky "#99d1db"
+  "Dark theme colour: sky."
+  :type 'color :group 'nano-theme-dark)
+(defcustom nano-dark-sapphire "#85c1dc"
+  "Dark theme colour: sapphire."
+  :type 'color :group 'nano-theme-dark)
+(defcustom nano-dark-blue "#8caaee"
+  "Dark theme colour: blue."
+  :type 'color :group 'nano-theme-dark)
+(defcustom nano-dark-lavender "#babbf1"
+  "Dark theme colour: lavender."
+  :type 'color :group 'nano-theme-dark)
+(defcustom nano-dark-text "#c6d0f5"
+  "Dark theme colour: text."
+  :type 'color :group 'nano-theme-dark)
+(defcustom nano-dark-subtext1 "#b5bfe2"
+  "Dark theme colour: subtext1."
+  :type 'color :group 'nano-theme-dark)
+(defcustom nano-dark-subtext0 "#a5adce"
+  "Dark theme colour: subtext0."
+  :type 'color :group 'nano-theme-dark)
+(defcustom nano-dark-overlay2 "#949cbb"
+  "Dark theme colour: overlay2."
+  :type 'color :group 'nano-theme-dark)
+(defcustom nano-dark-overlay1 "#838ba7"
+  "Dark theme colour: overlay1."
+  :type 'color :group 'nano-theme-dark)
+(defcustom nano-dark-overlay0 "#737994"
+  "Dark theme colour: overlay0."
+  :type 'color :group 'nano-theme-dark)
+(defcustom nano-dark-surface2 "#626880"
+  "Dark theme colour: surface2."
+  :type 'color :group 'nano-theme-dark)
+(defcustom nano-dark-surface1 "#51576d"
+  "Dark theme colour: surface1."
+  :type 'color :group 'nano-theme-dark)
+(defcustom nano-dark-surface0 "#414559"
+  "Dark theme colour: surface0."
+  :type 'color :group 'nano-theme-dark)
+(defcustom nano-dark-base "#303446"
+  "Dark theme colour: base."
+  :type 'color :group 'nano-theme-dark)
+(defcustom nano-dark-mantle "#292c3c"
+  "Dark theme colour: mantle."
+  :type 'color :group 'nano-theme-dark)
+(defcustom nano-dark-crust "#232634"
+  "Dark theme colour: crust."
   :type 'color :group 'nano-theme-dark)
 
-(defcustom nano-dark-background "#1e1e2e" ;; Polar Night 0 / nord  0
-  "Default background color"
-  :type 'color :group 'nano-theme-dark)
-
-(defcustom nano-dark-highlight "#313244" ;; Polar Night 1 / nord  1
-  "Highdark color is used to highdark part of the screen."
-  :type 'color :group 'nano-theme-dark)
-
-(defcustom nano-dark-subtle "#585b70" ;; Polar Night 2 / nord  2
-  "Subtle color is used to suggest a physical area on the screen."
-  :type 'color :group 'nano-theme-dark)
-
-(defcustom nano-dark-faded "#6c7086"
-  "Milder variant of faded used for delimiters without being intrusive."
-  :type 'color :group 'nano-theme-dark)
-
-(defcustom nano-dark-faded "#7f849c" ;;
-  "Faded face is for information that are less important."
-  :type 'color :group 'nano-theme-dark)
-
-(defcustom nano-dark-salient "#cba6f7" ;; Frost         / nord  9
-  "Salient color is used for information that are important."
-  :type 'color :group 'nano-theme-dark)
-
-(defcustom nano-dark-strong "#eff1f5" ;; White
-  "Strong color is used for information of a structural nature."
-  :type 'color :group 'nano-theme-dark)
-
-(defcustom nano-dark-popout "#fab387" ;; Aurora        / nord 12
-  "Popout colour is used for information that needs attention."
-  :type 'color :group 'nano-theme-dark)
-
-(defcustom nano-dark-critical  "#f38ba8" ;; Aurora        / nord 11
-  "Critical face is for information that requires immediate action."
-  :type 'color :group 'nano-theme-dark)
+(defcustom nano-rosewater nil
+  "Theme colour: rosewater."
+  :type 'color :group 'nano-theme)
+(defcustom nano-flamingo nil
+  "Theme colour: flamingo."
+  :type 'color :group 'nano-theme)
+(defcustom nano-pink nil
+  "Theme colour: pink."
+  :type 'color :group 'nano-theme)
+(defcustom nano-mauve nil
+  "Theme colour: mauve."
+  :type 'color :group 'nano-theme)
+(defcustom nano-red nil
+  "Theme colour: red."
+  :type 'color :group 'nano-theme)
+(defcustom nano-maroon nil
+  "Theme colour: maroon."
+  :type 'color :group 'nano-theme)
+(defcustom nano-peach nil
+  "Theme colour: peach."
+  :type 'color :group 'nano-theme)
+(defcustom nano-yellow nil
+  "Theme colour: yellow."
+  :type 'color :group 'nano-theme)
+(defcustom nano-green nil
+  "Theme colour: green."
+  :type 'color :group 'nano-theme)
+(defcustom nano-teal nil
+  "Theme colour: teal."
+  :type 'color :group 'nano-theme)
+(defcustom nano-sky nil
+  "Theme colour: sky."
+  :type 'color :group 'nano-theme)
+(defcustom nano-sapphire nil
+  "Theme colour: sapphire."
+  :type 'color :group 'nano-theme)
+(defcustom nano-blue nil
+  "Theme colour: blue."
+  :type 'color :group 'nano-theme)
+(defcustom nano-lavender nil
+  "Theme colour: lavender."
+  :type 'color :group 'nano-theme)
+(defcustom nano-text nil
+  "Theme colour: text."
+  :type 'color :group 'nano-theme)
+(defcustom nano-subtext1 nil
+  "Theme colour: subtext1."
+  :type 'color :group 'nano-theme)
+(defcustom nano-subtext0 nil
+  "Theme colour: subtext0."
+  :type 'color :group 'nano-theme)
+(defcustom nano-overlay2 nil
+  "Theme colour: overlay2."
+  :type 'color :group 'nano-theme)
+(defcustom nano-overlay1 nil
+  "Theme colour: overlay1."
+  :type 'color :group 'nano-theme)
+(defcustom nano-overlay0 nil
+  "Theme colour: overlay0."
+  :type 'color :group 'nano-theme)
+(defcustom nano-surface2 nil
+  "Theme colour: surface2."
+  :type 'color :group 'nano-theme)
+(defcustom nano-surface1 nil
+  "Theme colour: surface1."
+  :type 'color :group 'nano-theme)
+(defcustom nano-surface0 nil
+  "Theme colour: surface0."
+  :type 'color :group 'nano-theme)
+(defcustom nano-base nil
+  "Theme colour: base."
+  :type 'color :group 'nano-theme)
+(defcustom nano-mantle nil
+  "Theme colour: mantle."
+  :type 'color :group 'nano-theme)
+(defcustom nano-crust nil
+  "Theme colour: crust."
+  :type 'color :group 'nano-theme)
 
 (defface nano-critical nil
   "Critical face is for information that requires immediate action.
@@ -390,9 +548,9 @@ background color that is barely perceptible."
                  '(min-width  . 1)  '(width  . 81)
                  '(vertical-scroll-bars . nil)
                  '(internal-border-width . 24)
-                 '(left-fringe . 0)
+                 '(left-fringe . 16)
                  '(right-fringe . 0)
-		 '(line-spacing . 1)
+		 '(line-spacing . 0.1)
                  '(undecorated-round . t) ;; emacs-plu@29 only
                  '(scroll-bar-mode . -1)
                  '(tool-bar-lines . 0)
@@ -400,8 +558,7 @@ background color that is barely perceptible."
                  '(menu-bar-lines . 0))))
 
   (setq tool-bar-style 'image)
-  ;; Line spacing (in pixels)
-  (setq line-spacing 1)
+  (setq line-spacing 0.1)
 
   ;; Vertical window divider
   (setq window-divider-default-right-width 24)
@@ -433,11 +590,12 @@ background color that is barely perceptible."
   (set-fontset-font t '(#xee00 . #xee0b) "Symbols Nerd Font")
   (set-fontset-font t '(#xf300 . #xf381) "Symbols Nerd Font")
   (set-fontset-font t '(#xf400 . #xf533) "Symbols Nerd Font")
-  (set-fontset-font t '(#xf0001 . #xf1af0) "Symbols Nerd Font"))
+  (set-fontset-font t '(#xf0001 . #xf1af0) "Symbols Nerd Font")
+  )
 
 
 (defun nano-new-frame (&optional mode)
-  "This funcion creates a new frame in light or dark MODE."
+  "Create a new frame in light or dark MODE."
 
   (interactive)
   (let ((mode (or mode (frame-parameter nil 'background-mode)))
@@ -451,11 +609,12 @@ background color that is barely perceptible."
   (list (selected-frame)))
 
 (defun nano-frame-list-advice-normal (frames)
+  "Filter out FRAMES that are not standalone nano frames."
   (seq-filter (lambda (f) (not (frame-parameter f 'nano-theme-standalone))) frames))
 
-(defun nano-frame-enable (mode)
-  "Enable nano MODE for the current frame only."
-  (let ((frame (selected-frame))
+(defun nano-frame-enable (mode &optional frame)
+  "Enable nano MODE for the current frame or FRAME only."
+  (let ((frame (window-frame))
         (frame-background-mode mode))
     (set-frame-parameter frame 'nano-theme-standalone mode)
     (frame-set-background-mode frame)
@@ -463,15 +622,19 @@ background color that is barely perceptible."
     (enable-theme 'nano)
     (advice-remove 'frame-list #'nano-frame-list-advice-selected)))
 
-(defun nano-frame-dark ()
-  "Load the nano dark theme on current frame."
+(defun nano-frame-dark (&optional frame)
+  "Load the nano dark theme on FRAME or current frame."
   (interactive)
-  (nano-frame-enable 'dark))
+  (if (framep frame)
+      (nano-frame-enable 'dark frame)
+    (nano-frame-enable 'dark)))
 
-(defun nano-frame-light ()
-  "Load the nano light theme on current frame."
+(defun nano-frame-light (&optional frame)
+  "Load the nano light theme on FRAME or current frame."
   (interactive)
-  (nano-frame-enable 'light))
+  (if (framep frame)
+      (nano-frame-enable 'light frame)
+    (nano-frame-enable 'light)))
 
 (defun nano-theme-frame-toggle ()
   "Toggle theme on current frame only."
@@ -520,62 +683,101 @@ background color that is barely perceptible."
                                             (assq-delete-all 'background-mode default-frame-alist))))
     (add-to-list 'default-frame-alist `(background-mode . ,mode))
     (add-to-list 'default-frame-alist `(background-color . ,(if (eq mode 'light)
-                                                                nano-light-background
-                                                              nano-dark-background)))
+                                                                nano-light-base
+                                                              nano-dark-base)))
     (add-to-list 'default-frame-alist `(foreground-color . ,(if (eq mode 'light)
-                                                                nano-light-foreground
-                                                              nano-dark-foreground)))
+                                                                nano-light-text
+                                                              nano-dark-text)))
     (custom-theme-set-variables theme '(widget-image-enable nil)
                                 '(x-underline-at-descent-line t))
     (setq frame-background-mode mode)
     (mapc #'frame-set-background-mode (frame-list))
 
+    ;; Set the colours
+    (setq nano-rosewater
+	  (if (eq mode 'light) nano-light-rosewater nano-dark-rosewater))
+    (setq nano-flamingo
+	  (if (eq mode 'light) nano-light-flamingo nano-dark-flamingo))
+    (setq nano-pink
+	  (if (eq mode 'light) nano-light-pink nano-dark-pink))
+    (setq nano-mauve
+	  (if (eq mode 'light) nano-light-mauve nano-dark-mauve))
+    (setq nano-red
+	  (if (eq mode 'light) nano-light-red nano-dark-red))
+    (setq nano-maroon
+	  (if (eq mode 'light) nano-light-maroon nano-dark-maroon))
+    (setq nano-peach
+	  (if (eq mode 'light) nano-light-peach nano-dark-peach))
+    (setq nano-yellow
+	  (if (eq mode 'light) nano-light-yellow nano-dark-yellow))
+    (setq nano-green
+	  (if (eq mode 'light) nano-light-green nano-dark-green))
+    (setq nano-teal
+	  (if (eq mode 'light) nano-light-teal nano-dark-teal))
+    (setq nano-sky
+	  (if (eq mode 'light) nano-light-sky nano-dark-sky))
+    (setq nano-sapphire
+	  (if (eq mode 'light) nano-light-sapphire nano-dark-sapphire))
+    (setq nano-blue
+	  (if (eq mode 'light) nano-light-blue nano-dark-blue))
+    (setq nano-lavender
+	  (if (eq mode 'light) nano-light-lavender nano-dark-lavender))
+    (setq nano-text
+	  (if (eq mode 'light) nano-light-text nano-dark-text))
+    (setq nano-subtext1
+	  (if (eq mode 'light) nano-light-subtext1 nano-dark-subtext1))
+    (setq nano-subtext0
+	  (if (eq mode 'light) nano-light-subtext0 nano-dark-subtext0))
+    (setq nano-overlay2
+	  (if (eq mode 'light) nano-light-overlay2 nano-dark-overlay2))
+    (setq nano-overlay1
+	  (if (eq mode 'light) nano-light-overlay1 nano-dark-overlay1))
+    (setq nano-overlay0
+	  (if (eq mode 'light) nano-light-overlay0 nano-dark-overlay0))
+    (setq nano-surface2
+	  (if (eq mode 'light) nano-light-surface2 nano-dark-surface2))
+    (setq nano-surface1
+	  (if (eq mode 'light) nano-light-surface1 nano-dark-surface1))
+    (setq nano-surface0
+	  (if (eq mode 'light) nano-light-surface0 nano-dark-surface0))
+    (setq nano-base
+	  (if (eq mode 'light) nano-light-base nano-dark-base))
+    (setq nano-mantle
+	  (if (eq mode 'light) nano-light-mantle nano-dark-mantle))
+    (setq nano-crust
+	  (if (eq mode 'light) nano-light-crust nano-dark-crust))
+
     (when nano-fonts-use
         (custom-theme-set-faces theme
-         `(default ((,light (:foreground ,nano-light-foreground
-			     :background ,nano-light-background
-                             :weight     ,(face-attribute 'nano-mono :weight)
-                             :height     ,(face-attribute 'nano-mono :height)
-                             :family     ,(face-attribute 'nano-mono :family)))
-                    (,dark  (:foreground ,nano-dark-foreground
-			     :background ,nano-dark-background
-                             :weight     ,(face-attribute 'nano-mono :weight)
-                             :height     ,(face-attribute 'nano-mono :height)
-                             :family     ,(face-attribute 'nano-mono :family)))))
-         `(italic ((,light  (:foreground ,nano-light-foreground
-			     :background ,nano-light-background
-                             :weight     ,(face-attribute 'nano-mono :weight)
-                             :height     ,(face-attribute 'nano-mono :height)
-                             :slant      italic))
-                    (,dark  (:foreground ,nano-dark-foreground
-			     :background ,nano-dark-background
-                             :weight     ,(face-attribute 'nano-mono :weight)
-                             :height     ,(face-attribute 'nano-mono :height)
-                             :slant      italic))))
-         `(nano-strong ((t (:weight semi-bold ))))
+         `(default ((t (:foreground ,nano-text
+			:background ,nano-base
+                        :weight     ,(face-attribute 'nano-mono :weight)
+                        :height     ,(face-attribute 'nano-mono :height)
+                        :family     ,(face-attribute 'nano-mono :family)))))
+         `(italic ((t  (:foreground ,nano-text
+			:background ,nano-base
+                        :weight     ,(face-attribute 'nano-mono :weight)
+                        :height     ,(face-attribute 'nano-mono :height)
+                        :slant      italic))))
+         `(nano-strong ((t (:weight medium ))))
          `(variable-pitch  ((t (:weight ,(face-attribute 'nano-sans :weight)
                                 :height ,(face-attribute 'nano-sans :height)
                                 :family ,(face-attribute 'nano-sans :family)))))))
 
     (unless nano-fonts-use
         (custom-theme-set-faces theme
-         `(default ((,light (:foreground ,nano-light-foreground))
-                    (,dark  (:foreground ,nano-dark-foreground))))
-         `(nano-strong ((,light (:weight semi-bold :foreground ,nano-light-strong))
-                        (,dark  (:weight semi-bold :foreground ,nano-dark-strong))))))
+         `(default ((t (:foreground ,nano-text))))
+         `(nano-strong ((t (:weight medium :foreground ,nano-text))))))
+
 
     ;; --- Window divider ----------------------------------------------
     (if nano-window-divider-show
         (custom-theme-set-faces theme
-         `(window-divider ((,light (:foreground ,nano-light-foreground))
-                           (,dark  (:foreground ,nano-dark-foreground))))
-         `(vertical-border ((,light (:foreground ,nano-light-foreground))
-                            (,dark  (:foreground ,nano-dark-foreground)))))
+         `(window-divider ((t (:foreground ,nano-text))))
+         `(vertical-border ((t (:foreground ,nano-text)))))
       (custom-theme-set-faces theme
-       `(window-divider ((,light (:foreground ,nano-light-background))
-                         (,dark  (:foreground ,nano-dark-background))))
-       `(vertical-border ((,light (:foreground ,nano-light-background))
-                          (,dark  (:foreground ,nano-dark-background))))))
+       `(window-divider ((t (:foreground ,nano-base))))
+       `(vertical-border ((t (:foreground ,nano-base))))))
     (custom-theme-set-faces theme
      '(window-divider-first-pixel ((t (:inherit window-divider))))
      '(window-divider-last-pixel ((t (:inherit window-divider)))))
@@ -585,122 +787,81 @@ background color that is barely perceptible."
 
    ;; --- Base ---------------------------------------------------------
 
-   `(default ((,light  (:background ,nano-light-background
-                        :foreground ,nano-light-foreground))
-              (,dark  (:background ,nano-dark-background
-                       :foreground ,nano-dark-foreground))))
+   `(default ((t  (:background ,nano-base
+                        :foreground ,nano-text))))
 
-   `(cursor ((,light (:foreground ,nano-light-background
-                      :background ,nano-light-foreground))
-             (,dark  (:foreground ,nano-dark-background
-                      :background ,nano-dark-foreground))))
+   `(cursor ((t (:foreground ,nano-base
+                      :background ,nano-text))))
 
-   `(mouse ((,light (:foreground ,nano-light-foreground
-                     :background ,nano-light-background))
-             (,dark  (:foreground ,nano-dark-foreground
-                      :background ,nano-dark-background))))
+   `(mouse ((t (:foreground ,nano-text
+                     :background ,nano-base))))
 
-   `(highlight ((,light (:background ,nano-light-highlight))
-                (,dark  (:background ,nano-dark-highlight))))
+   `(highlight ((t (:background ,nano-mantle))))
 
-   `(nano-subtle ((,light (:background ,nano-light-subtle))
-                  (,dark  (:background ,nano-dark-subtle))))
+   `(nano-subtle ((t (:background ,nano-crust))))
 
-   `(nano-subtle-i ((,light (:foreground ,nano-light-subtle))
-                    (,dark  (:foreground ,nano-dark-subtle))))
+   `(nano-subtle-i ((t (:foreground ,nano-crust))))
 
-   `(nano-faded ((,light  (:foreground ,nano-light-faded))
-                 (,dark  (:foreground ,nano-dark-faded))))
+   `(nano-faded ((t  (:foreground ,nano-overlay0))))
 
-   `(nano-faded-i ((,light (:foreground ,nano-light-background
-                            :background ,nano-light-faded))
-                    (,dark  (:foreground ,nano-dark-background
-                             :background ,nano-dark-faded))))
+   `(nano-faded-i ((t (:foreground ,nano-base
+                            :background ,nano-overlay0))))
 
-   `(nano-default ((,light  (:foreground ,nano-light-foreground))
-                   (,dark  (:foreground ,nano-dark-foreground))))
+   `(nano-default ((t  (:foreground ,nano-text))))
 
-   `(nano-default-i ((,light (:foreground ,nano-light-background
-                              :background ,nano-light-foreground))
-                     (,dark  (:foreground ,nano-dark-background
-                              :background ,nano-dark-foreground))))
+   `(nano-default-i ((t (:foreground ,nano-base
+                              :background ,nano-text))))
 
 
-   `(nano-salient ((,light (:foreground ,nano-light-salient))
-                   (,dark  (:foreground ,nano-dark-salient))))
+   `(nano-salient ((t (:foreground ,nano-mauve))))
 
-   `(nano-salient-i ((,light (:foreground ,nano-light-background
-                              :background ,nano-light-salient))
-                     (,dark  (:foreground ,nano-dark-background
-                              :background ,nano-dark-salient))))
+   `(nano-salient-i ((t (:foreground ,nano-base
+                              :background ,nano-mauve))))
 
 
 
-   `(nano-strong-i ((,light (:foreground ,nano-light-background
-                             :background ,nano-light-strong
-                             :weight normal))
-                    (,dark  (:foreground ,nano-dark-background
-                             :background ,nano-dark-strong
+   `(nano-strong-i ((t (:foreground ,nano-base
+                             :background ,nano-text
                              :weight normal))))
 
-   `(nano-popout ((,light (:foreground ,nano-light-popout))
-                  (,dark  (:foreground ,nano-dark-popout))))
+   `(nano-popout ((t (:foreground ,nano-peach))))
 
-   `(nano-popout-i ((,light (:foreground ,nano-light-background
-                             :background ,nano-light-popout))
-                    (,dark  (:foreground ,nano-dark-background
-                             :background ,nano-dark-popout))))
+   `(nano-popout-i ((t (:foreground ,nano-base
+                             :background ,nano-peach))))
 
-   `(nano-critical ((,light (:foreground ,nano-light-critical
-                             :weight normal))
-                    (,dark  (:foreground ,nano-dark-critical
+   `(nano-critical ((t (:foreground ,nano-red
                              :weight normal))))
 
-   `(nano-critical-i ((,light (:foreground ,nano-light-background
-                               :background ,nano-light-critical
-                               :weight normal))
-                      (,dark  (:foreground ,nano-dark-background
-                               :background ,nano-dark-critical
+   `(nano-critical-i ((t (:foreground ,nano-base
+                               :background ,nano-red
                                :weight normal))))
 
    ;; --- Header & mode line -------------------------------------------
 
-   `(mode-line ((,light (:foreground ,nano-light-background
-                         :background ,nano-light-faded
-                         :height 0.1
-			 :underline t))
-        (,dark  (:foreground ,nano-dark-foreground
-		 :background ,nano-dark-faded
-		 :height 0.1
-		 :underline t))))
+   `(mode-line ((t (:foreground ,nano-base
+                         :background ,nano-overlay0
+                         :height 1
+			 :underline t))))
    `(mode-line-highlight ((t (:inherit nano-popout))))
    `(mode-line-buffer-id ((t (:weight regular))))
    `(mode-line-emphasis  ((t (:weight regular))))
 
-   `(mode-line-inactive ((,light (:foreground ,nano-light-background
-                                  :background ,nano-light-subtle
-                                  :height 0.1
-				  :underline t))
-			 (,dark  (:foreground ,nano-dark-background
-                                  :background ,nano-dark-subtle
-                                  :height 0.1
+   `(mode-line-inactive ((t (:foreground ,nano-base
+                                  :background ,nano-crust
+                                  :height 1
 				  :underline t))))
 
-   `(header-line ((,light (:foreground ,nano-light-foreground
-                           :background ,nano-light-subtle
-                           :inherit nil
-                           :box nil))
-          (,dark  (:foreground ,nano-dark-foreground
-                   :background ,nano-dark-subtle
+   `(header-line ((t (:foreground ,nano-text
+                           :background ,nano-crust
                            :inherit nil
                            :box nil))))
 
 
    ;; --- Structural ---------------------------------------------------
-   '(bold                        ((t (:inherit nano-strong :weight semi-bold))))
+   '(bold                        ((t (:inherit nano-strong :weight medium))))
    '(italic                      ((t (:slant italic))))
    ;; '(italic                      ((t (:inherit nano-faded))))
-   '(bold-italic                 ((t (:inherit nano-strong :slant italic :weight semi-bold))))
+   '(bold-italic                 ((t (:inherit nano-strong :slant italic :weight medium))))
    '(region                      ((t (:inherit nano-subtle :distant-foreground unspecified))))
    '(fringe                      ((t (:inherit (nano-faded)))))
    '(hl-line                     ((t (:inherit highlight))))
@@ -818,28 +979,19 @@ background color that is barely perceptible."
 
    ;; --- Buttons ------------------------------------------------------
    `(custom-button
-     ((,light (:foreground ,nano-light-faded
-               :background ,nano-light-highlight
-               :box nil))
-      (,dark (:foreground ,nano-dark-faded
-              :background ,nano-dark-highlight
-              :box nil))))
+     ((t (:foreground ,nano-overlay0
+               :background ,nano-mantle
+               :box nil))))
 
    `(custom-button-mouse
-     ((,light (:foreground ,nano-light-foreground
-           :background ,nano-light-subtle
-               :box nil))
-      (,dark (:foreground ,nano-dark-foreground
-          :background ,nano-dark-subtle
-              :box nil))))
+     ((t (:foreground ,nano-text
+           :background ,nano-crust
+               :box nil))))
 
    `(custom-button-pressed
-     ((,light (:foreground ,nano-light-background
-           :background ,nano-light-foreground
-               :box nil))
-      (,dark (:foreground ,nano-dark-background
-          :background ,nano-dark-foreground
-              :box nil))))
+     ((t (:foreground ,nano-base
+           :background ,nano-text
+               :box nil))))
 
    ;; --- Packages -----------------------------------------------------
    '(package-description            ((t (:inherit nano-default))))
@@ -1029,9 +1181,10 @@ background color that is barely perceptible."
    '(org-archived                            ((t (:inherit nano-faded))))
    '(org-block                               ((t (:inherit highlight))))
    `(org-block-begin-line                    ((t (:inherit nano-faded
-                                                 :underline ,(face-background 'nano-subtle)))))
-   `(org-block-end-line                      ((t (:inherit nano-faded
-                                                 :overline ,(face-background 'nano-subtle)))))
+						  :background ,nano-mantle
+						  :box (:line-width (1 . 6)
+							:color ,nano-mantle)))))
+   `(org-block-end-line                      ((t (:inherit org-block-begin-line))))
    '(org-checkbox                            ((t (:inherit nano-faded))))
    '(org-checkbox-statistics-done            ((t (:inherit nano-faded))))
    '(org-checkbox-statistics-todo            ((t (:inherit nano-faded))))
@@ -1045,24 +1198,25 @@ background color that is barely perceptible."
    '(org-default                             ((t (:inherit nano-faded))))
    '(org-document-info                       ((t (:inherit nano-faded))))
    '(org-document-info-keyword               ((t (:inherit nano-faded))))
-   '(org-document-title                      ((t (:inherit (nano-strong
-							    nano-serif)
-						  :height 1.8))))
+   '(org-document-title                      ((t (:inherit nano-strong
+						  :weight bold
+						  :height 2.2))))
    '(org-done                                ((t (:inherit (nano-faded
 							    nano-mono)))))
    '(org-drawer                              ((t (:inherit nano-faded))))
    '(org-ellipsis                            ((t (:inherit nano-faded))))
    '(org-footnote                            ((t (:inherit nano-faded))))
    '(org-formula                             ((t (:inherit nano-faded))))
-   '(org-headline-done                       ((t (:inherit nano-faded))))
+   '(org-headline-done                       ((t (:inherit nano-faded
+						  :strike-through t))))
    '(org-latex-and-related                   ((t (:inherit (nano-faded
 							    nano-mono)))))
    '(org-level-1                             ((t (:inherit nano-strong
 						  :weight bold
-						  :height 1.4))))
+						  :height 1.6))))
    '(org-level-2                             ((t (:inherit nano-strong
 						  :weight bold
-						  :height 1.2))))
+						  :height 1.25))))
    '(org-level-3                             ((t (:inherit nano-strong
 						  :height 1.1))))
    '(org-level-4                             ((t (:inherit nano-strong))))
@@ -1079,7 +1233,8 @@ background color that is barely perceptible."
    '(org-priority                            ((t (:inherit (nano-faded
 							    nano-mono)))))
    '(org-property-value                      ((t (:inherit nano-faded))))
-   '(org-quote                               ((t (:inherit highlight))))
+   '(org-quote                               ((t (:inherit highlight
+						  :extend t))))
    '(org-scheduled                           ((t (:inherit nano-faded))))
    '(org-scheduled-previously                ((t (:inherit nano-faded))))
    '(org-scheduled-today                     ((t (:inherit nano-faded))))
